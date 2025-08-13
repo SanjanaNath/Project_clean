@@ -5,11 +5,14 @@ import 'package:flutter/services.dart'; // Add this import
 import 'package:intl/intl.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:project_clean/controllers/screens_controller.dart';
+import 'package:project_clean/core/api_config.dart';
 import 'package:provider/provider.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'package:http/http.dart' as http;
+import '../widgets/no_data_found.dart';
 
 
 class ReportScreen extends StatefulWidget {
@@ -37,11 +40,11 @@ class _ReportScreenState extends State<ReportScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      // fetchBookingHistory();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Call the API to fetch survey history data
+      Provider.of<ScreenController>(context, listen: false).surveyHistory(context: context);
     });
   }
-
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -64,12 +67,15 @@ class _ReportScreenState extends State<ReportScreen> {
       ),
       body: Consumer<ScreenController>(
         builder: (context, controller, child) {
-          // List<Data>? nyotaBookingHistoryData =
-          //     controller.nyotaBookingHistoryModel?.data;
 
-          // DateTime parsedDate = DateTime.parse(controller.nyotaBookingHistoryModel?.data?.first.date);
-          // String formattedDate = DateFormat('dd-MM-yyyy').format(parsedDate);
-
+          if (controller.surveyHistoryList.isEmpty && !controller.isLoading) {
+            return NoDataFound(
+              heightFactor: 0.35,
+              color: Colors.teal,
+              message: 'No Survey History',
+              buildContext: context,
+            );
+          }
           return ModalProgressHUD(
               inAsyncCall: controller.isLoading ?? false,
               child:
@@ -77,11 +83,12 @@ class _ReportScreenState extends State<ReportScreen> {
               //     ?
               SingleChildScrollView(
                 child: ListView.builder(
-                  itemCount: 3,
+                  itemCount: controller.surveyHistoryList.length,
                   shrinkWrap: true,
                   padding: EdgeInsets.only(bottom: size.height * 0.12),
                   physics: const NeverScrollableScrollPhysics(),
                   itemBuilder: (context, index) {
+                    final survey = controller.surveyHistoryList[index];
                     return GestureDetector(
                       onTap: () {
                         // Handle tap on the card
@@ -105,7 +112,7 @@ class _ReportScreenState extends State<ReportScreen> {
                           children: [
                             // Date Section
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                               decoration: BoxDecoration(
                                 color: Colors.teal.shade50,
                                 borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
@@ -127,7 +134,7 @@ class _ReportScreenState extends State<ReportScreen> {
                                         fontWeight: FontWeight.w600),
                                   ),
                                   Text(
-                                    "13/08/2025", // Use your dynamic date variable here
+                                    DateFormat('dd/MM/yyyy').format(DateTime.parse(survey.attendanceDate)),
                                     style: const TextStyle(
                                         color: Colors.teal,
                                         fontSize: 15,
@@ -153,7 +160,7 @@ class _ReportScreenState extends State<ReportScreen> {
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    'Boys Hostel', // Use your dynamic hostel name variable here
+                                    survey.hostelName, // Use your dynamic hostel name variable here
                                     style: TextStyle(
                                       color: Colors.teal.shade800,
                                       fontSize: 18,
@@ -176,21 +183,49 @@ class _ReportScreenState extends State<ReportScreen> {
                                   ),
                                   padding: const EdgeInsets.symmetric(vertical: 12),
                                 ),
-                                onPressed: () {
 
-                                    // Replace with your actual dynamic data for the report
+                                onPressed: () async {
+                                  final response = await controller.reportGenerate(
+                                    context: context,
+                                    attendanceID: survey.attendanceID,
+                                  );
+
+                                  if (response != null && response['success'] == true) {
+                                    final attendanceData = response['attendance'];
+                                    final imagesData = response['images'] as List<dynamic>;
+
+                                    // Group images by type
+                                    Map<String, List<String>> groupedImages = {};
+                                    for (var image in imagesData) {
+                                      final imageType = image['image_type'];
+                                      final imageUrl = image['image_url'];
+                                      if (imageUrl != null) {
+                                        // You might need to prepend the base URL for the images
+                                        final fullUrl = '${ApiConfig.baseUrl1}$imageUrl';
+                                        if (!groupedImages.containsKey(imageType)) {
+                                          groupedImages[imageType] = [];
+                                        }
+                                        groupedImages[imageType]?.add(fullUrl);
+                                      }
+                                    }
+                                    final remarks = (imagesData.isNotEmpty && imagesData.first['remarks'] != null)
+                                        ? imagesData.first['remarks']
+                                        : '';
+
                                     generateReport(
-                                      hostelId: 'BK12345678', // Replace with your booking ID
-                                      hostelName: 'PRE-MATRIC SC BOYS HOSTEL SHIVANI ABHANPUR', // Replace with your hostel name
-                                      date: '8/13/2025', // Replace with your formatted date
-                                      entranceImagePaths: ['assets/images/entranceImage1.jpg' ,'assets/images/entranceImage2.jpg' ], // Replace with actual paths
-                                      kitchenImagePaths: ['assets/images/kitchen1.jpeg', 'assets/images/kitchen2.jpeg'],
-                                      roomImagePaths: ['assets/images/room1.jpeg','assets/images/room2.jpeg','assets/images/room3.jpeg','assets/images/room4.jpeg','assets/images/room5.jpeg' ],
-                                      toiletImagePaths: ['assets/images/toilet.jpeg'],
-                                      remarks: 'All facilities were found to be in excellent condition during the inspection.', // Replace with your remarks
+                                      context: context,
+                                      hostelName: attendanceData['hostel_name'] ?? '',
+                                      hostelId: attendanceData['hostel_id'] ?? '',
+                                      date: DateFormat('dd/MM/yyyy').format(DateTime.parse(attendanceData['attendance_date'])),
+                                      entranceUrls: groupedImages['Entrance'] ?? [],
+                                      kitchenUrls: groupedImages['Kitchen'] ?? [],
+                                      toiletUrls: groupedImages['Bathroom & Toilet'] ?? [],
+                                      roomUrls: groupedImages['Room'] ?? [],
+                                      remarks: remarks,
                                     );
-
+                                  }
                                 },
+
                                 child: const Text(
                                   'Generate Report',
                                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
@@ -204,12 +239,6 @@ class _ReportScreenState extends State<ReportScreen> {
                   },
                 ),
               )
-              //     : NoDataFound(
-              //   heightFactor: 0.35,
-              //   color: Colors.teal,
-              //   message: 'No Booking History',
-              //   buildContext: context,
-              // )
           );
         },
       ),
@@ -217,174 +246,109 @@ class _ReportScreenState extends State<ReportScreen> {
   }
 
   Future<void> generateReport({
-    required String hostelId,
+    required BuildContext context,
     required String hostelName,
+    required String hostelId,
     required String date,
-    required List<String> entranceImagePaths,
-    required List<String> kitchenImagePaths,
-    required List<String> toiletImagePaths,
-    required List<String> roomImagePaths,
+    required List<String> entranceUrls,
+    required List<String> kitchenUrls,
+    required List<String> toiletUrls,
+    required List<String> roomUrls,
     required String remarks,
-  }) async {
+  })
+  async {
     final pdf = pw.Document();
 
-    // Correctly load images from assets
-    Future<List<pw.Image>> _getImagesFromAssets(List<String> paths) async {
-      final List<pw.Image> images = [];
-      for (var path in paths) {
-        if (path.isNotEmpty) {
-          try {
-            final ByteData assetData = await rootBundle.load(path);
-            final Uint8List imageBytes = assetData.buffer.asUint8List();
-            images.add(pw.Image(pw.MemoryImage(imageBytes)));
-          } catch (e) {
-            print('Error loading image from asset: $path, Error: $e');
+    Future<List<pw.Image>> _getImagesFromUrls(List<String> urls) async {
+      List<pw.Image> images = [];
+      for (var url in urls) {
+        try {
+          final response = await http.get(Uri.parse(url));
+          if (response.statusCode == 200) {
+            images.add(pw.Image(pw.MemoryImage(response.bodyBytes)));
           }
+        } catch (e) {
+          print("Error loading image from $url: $e");
         }
       }
       return images;
     }
 
-    // Fetch images from asset paths
-    final entranceImages = await _getImagesFromAssets(entranceImagePaths.take(4).toList());
-    final kitchenImages = await _getImagesFromAssets(kitchenImagePaths.take(4).toList());
-    final toiletImages = await _getImagesFromAssets(toiletImagePaths.take(4).toList());
-    final roomImages = await _getImagesFromAssets(roomImagePaths.take(4).toList());
+    final entranceImages = await _getImagesFromUrls(entranceUrls.take(4).toList());
+    final kitchenImages = await _getImagesFromUrls(kitchenUrls.take(4).toList());
+    final toiletImages = await _getImagesFromUrls(toiletUrls.take(4).toList());
+    final roomImages = await _getImagesFromUrls(roomUrls.take(4).toList());
 
     pdf.addPage(
       pw.MultiPage(
         pageFormat: PdfPageFormat.a4,
-        build: (pw.Context context) {
-          return [
-            pw.Column(
-              crossAxisAlignment: pw.CrossAxisAlignment.center,
-              children: [
-                // Main Report Title
-                pw.Center(
-                  child: pw.Text(
-                    'Hostel Report',
-                    style: pw.TextStyle(
-                      fontSize: 30,
-                      fontWeight: pw.FontWeight.bold,
-
-                      color: PdfColors.teal,
-                    ),
-                  ),
-                ),
-                pw.SizedBox(height: 10),
-                // A divider to separate the title from the details
-                pw.SizedBox(height: 10),
-
-                // Hostel Name section with a distinct style
-                pw.Center(
-                  child: pw.Text(
-                    '$hostelName',
-                    style: pw.TextStyle(
-                      fontSize: 20,
-                      fontWeight: pw.FontWeight.bold,
-                      color: PdfColors.teal,
-                    ),
-                  ),
-                ),
-
-                pw.SizedBox(height: 20),
-
-                // Details section with a more professional layout
-                pw.Row(
-                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                  children: [
-                    pw.RichText(
-                      text: pw.TextSpan(
-                        style: const pw.TextStyle(
-                          fontSize: 14,
-                          color: PdfColors.grey700,
-                        ),
-                        children: [
-                          pw.TextSpan(text: 'Survey Date: ', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                          pw.TextSpan(text: date),
-                        ],
-                      ),
-                    ),
-                    pw.RichText(
-                      text: pw.TextSpan(
-                        style: const pw.TextStyle(
-                          fontSize: 14,
-                          color: PdfColors.grey700,
-                        ),
-                        children: [
-                          pw.TextSpan(text: 'Hostel ID: ', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
-                          pw.TextSpan(text: hostelId),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                pw.Divider(color: PdfColors.teal),
-              ],
+        build: (pw.Context context) => [
+          pw.Center(
+            child: pw.Text(
+              'Hostel Report',
+              style: pw.TextStyle(fontSize: 30, fontWeight: pw.FontWeight.bold, color: PdfColors.teal),
             ),
-            // Images Sections
-            _buildImageSection('Entrance Images', entranceImages),
-            _buildImageSection('Kitchen Images', kitchenImages),
-            _buildImageSection('Toilet Images', toiletImages),
-            _buildImageSection('Room Images', roomImages),
-            pw.SizedBox(height: 20),
-            // Remarks Section
-            pw.Text(
-              'Remarks:',
-              style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold, color: PdfColors.teal),
+          ),
+          pw.SizedBox(height: 10),
+          pw.Center(
+            child: pw.Text(
+              hostelName,
+              style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold, color: PdfColors.teal),
             ),
-            pw.SizedBox(height: 5),
-            pw.Container(
-              padding: const pw.EdgeInsets.all(10),
-              decoration: pw.BoxDecoration(
-                border: pw.Border.all(color: PdfColors.teal, width: 1),
-                borderRadius: pw.BorderRadius.circular(8),
-              ),
-              child: pw.Text(remarks, style: const pw.TextStyle(fontSize: 12)),
-            ),
-          ];
-        },
+          ),
+          pw.SizedBox(height: 20),
+          pw.Row(
+            mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+            children: [
+              pw.Text("Survey Date: $date"),
+              pw.Text("Hostel ID: $hostelId"),
+            ],
+          ),
+          pw.Divider(color: PdfColors.teal),
+          _buildImageSection('Entrance Images', entranceImages),
+          _buildImageSection('Kitchen Images', kitchenImages),
+          _buildImageSection('Toilet Images', toiletImages),
+          _buildImageSection('Room Images', roomImages),
+          pw.SizedBox(height: 20),
+          pw.Text('Remarks:', style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
+          pw.Text(remarks),
+        ],
       ),
     );
 
-    // Get the application documents directory
-    final String dirPath = (await getApplicationDocumentsDirectory()).path;
-    // Create the subdirectory for the hostel name
-    final Directory hostelDir = Directory('$dirPath/$hostelName');
+    // final dir = (await getApplicationDocumentsDirectory()).path;
+    // final file = File('$dir/$hostelName-$date.pdf');
+    // await file.writeAsBytes(await pdf.save());
+    // OpenFilex.open(file.path);
+    final dir = (await getApplicationDocumentsDirectory()).path;
 
-    // Check if the directory exists, and create it if it doesn't
-    if (!await hostelDir.exists()) {
-      await hostelDir.create(recursive: true);
-    }
-    final String filePath = '${hostelDir.path}/$hostelId.pdf';
-    final File file = File(filePath);
+    // Sanitize the filename to remove invalid characters
+    final sanitizedDate = date.replaceAll('/', '-');
+
+    // Also sanitize the hostel name just in case it contains invalid characters
+    final sanitizedHostelName = hostelName.replaceAll(RegExp(r'[^\w\s\.-]'), '');
+
+    final fileName = '$sanitizedHostelName-$sanitizedDate.pdf';
+    final file = File('$dir/$fileName');
+
     await file.writeAsBytes(await pdf.save());
-
-    // Open the PDF file
-    OpenFilex.open(filePath);
+    OpenFilex.open(file.path);
   }
 
-// Helper function to create image sections
   pw.Widget _buildImageSection(String title, List<pw.Image> images) {
     if (images.isEmpty) return pw.SizedBox.shrink();
-
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
         pw.SizedBox(height: 10),
-        pw.Text(
-          title,
-          style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold, color: PdfColors.teal),
-        ),
-        pw.SizedBox(height: 5),
+        pw.Text(title, style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold, color: PdfColors.teal)),
         pw.GridView(
           crossAxisCount: 2,
           childAspectRatio: 1.5,
-          mainAxisSpacing: 10,
-          crossAxisSpacing: 10,
           children: images,
         ),
       ],
     );
   }
+
 }

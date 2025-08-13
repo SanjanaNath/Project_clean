@@ -64,7 +64,8 @@ class ApiService {
 
   /// Image Upload method
   Future<void> uploadImages(
-      String url, {
+      String url,
+      {
         Map<String, dynamic>? extraData,
         Map<String, List<File>>? multipleImages,
       }) async {

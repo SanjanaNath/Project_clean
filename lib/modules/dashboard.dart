@@ -21,7 +21,7 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard> {
   final LocalDatabase localDatabase = LocalDatabase();
-
+  final TextEditingController _remarkController = TextEditingController();
   Future<void> _fetchBlock() async {
     return await context.read<ScreenController>().fetchBlock(
       context: context,
@@ -35,7 +35,11 @@ class _DashboardState extends State<Dashboard> {
       _fetchBlock();
     });
   }
-
+  @override
+  void dispose() {
+    _remarkController.dispose();
+    super.dispose();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -220,8 +224,23 @@ class _DashboardState extends State<Dashboard> {
               const SizedBox(height: 24),
               if (controller.isAttendanceMarked) ...[
                 _photoCategoriesGrid(context, controller),
-                const SizedBox(height: 20),
-                _buildSubmitButton(context, controller),
+                const SizedBox(height: 24),
+                if (controller.allCategoriesHavePhotos) ...[
+                  TextFormField(
+                    controller: _remarkController,
+                    decoration: _getDropdownDecoration(context, "Add Remarks").copyWith(
+                      prefixIcon: const Icon(Icons.edit_note, color: Colors.teal),
+                    ),
+                    maxLines: 3,
+                    keyboardType: TextInputType.multiline,
+                    onChanged: (_) => setState(() {}), // Rebuild to check if remark is filled
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Show submit button only if remark is not empty
+                  if (_remarkController.text.trim().isNotEmpty)
+                    _buildSubmitButton(context, controller),
+                ],
               ] else ...[
                 // Spacer for when the button is not there, to maintain layout
                 const SizedBox(height: 20),
@@ -350,8 +369,11 @@ class _DashboardState extends State<Dashboard> {
             const SnackBar(content: Text("Please capture at least one photo.")),
           );
           return;
+
+
         }
-        // await controller.submitPhotos(context);
+        await controller.submitPhotos(context,  _remarkController.text.trim());
+
       },
     );
   }

@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geolocator/geolocator.dart';
-
 import '../core/api_config.dart';
 import '../services/api_service.dart';
 import '../services/local_database.dart';
@@ -23,6 +22,7 @@ class ScreenController extends ChangeNotifier {
     PhotoCategory(name: 'Room', icon: Icons.hotel_rounded),
   ];
   final List<BlockList> blocks = [];
+  final List<SurveyHistoryList> surveyHistoryList = [];
   final Map<String, List<File>> capturedImages = {};
 
   void selectSite(String siteName) {
@@ -93,6 +93,16 @@ class ScreenController extends ChangeNotifier {
 
   bool isLoading = false;
 
+  bool get allCategoriesHavePhotos {
+    for (var category in photoCategories) {
+      if (capturedImages[category.name] == null || capturedImages[category.name]!.isEmpty) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  ///Mark Attendance API
   Future<void> hostelAttendance({
     required BuildContext context,
     required String hostelID,
@@ -115,12 +125,13 @@ class ScreenController extends ChangeNotifier {
 
       if (response['success'] == true) {
         isAttendanceMarked = true;
-        LocalDatabase().setAttendanceID(response['attendance_id']);
+        localDatabase.setAttendanceID(response['attendance_id']);
         Fluttertoast.showToast(
           msg: response['message'],
           backgroundColor: Colors.green,
           toastLength: Toast.LENGTH_LONG,
         );
+        print(" localDatabase.attendanceID ==========>${ localDatabase.attendanceID}");
 
         isLoading = false;
       } else {
@@ -187,6 +198,8 @@ class ScreenController extends ChangeNotifier {
     }
   }
 
+
+/// Hostel List API
   Future<void> fetchHostelList({
     required BuildContext context,
     required int blockCode,
@@ -236,7 +249,10 @@ class ScreenController extends ChangeNotifier {
     }
   }
 
-  Future<void> submitPhotos(BuildContext context) async {
+
+  ///Image Upload API
+  Future<void> submitPhotos(BuildContext context, String remark)
+  async {
     try {
       isLoading = true;
       notifyListeners();
@@ -244,38 +260,44 @@ class ScreenController extends ChangeNotifier {
 
       var body = {
         "attendance_id": localDatabase.attendanceID,
-        "remarks": "ok",
+        "remarks": remark,
+        "image_type[0]": "Entrance",
+        "image_type[1]": "Kitchen",
+        "image_type[2]": "Bathroom & Toilet",
+        "image_type[3]": "Room",
+
       };
 
       // Prepare files map
       Map<String, List<File>> files = {
-        "Entrance_images": [],
-        "Kitchen_images": [],
-        "Toilet_images": [],
-        "Room_images": [],
+        "images[0]": [],
+        "images[1]": [],
+        "images[2]": [],
+        "images[3]": [],
       };
 
       // Fill files map from capturedImages
       capturedImages.forEach((categoryName, images) {
         switch (categoryName) {
           case "Entrance":
-            files["Entrance_images"] = images;
+            files["images[0]"] = images;
             break;
           case "Kitchen":
-            files["Kitchen_images"] = images;
+            files["images[1]"] = images;
             break;
-          case "Toilet":
-            files["Toilet_images"] = images;
+          case "Bathroom & Toilet":
+            files["images[2]"] = images;
             break;
           case "Room":
-            files["Room_images"] = images;
+            files["images[3]"] = images;
             break;
         }
       });
-
+        print("Sent files $files");
+        print("Sent Body $body");
       // Send all files in one call
       await ApiService().uploadImages(
-        ApiConfig.imageUpload,
+        "${ApiConfig.baseUrl}${ApiConfig.imageUpload}",
         extraData: body,
         multipleImages: files,
       );
@@ -296,6 +318,94 @@ class ScreenController extends ChangeNotifier {
     }
   }
 
+  ///Attendance History API
+  Future<void> surveyHistory({
+    required BuildContext context,
+  })
+  async {
+    isLoading = true;
+    notifyListeners();
+
+    try {
+      final response = await ApiService().get("${ApiConfig.getUserAttendance}${localDatabase.userID}");
+
+      if (response['success'] == true) {
+        final List dataList = response['data'];
+
+
+        surveyHistoryList.clear();
+        surveyHistoryList.addAll(
+          dataList.map((item) => SurveyHistoryList(
+            attendanceDate: item['attendance_date'] ?? '',
+            attendanceID: item['attendance_id'] ?? 0,
+            userID: item['user_id'] ?? '',
+            hostelName: item['hostel_name'] ?? '',
+            hostelID:  item['hostel_id'] ?? ''
+          )),
+        );
+
+
+        isLoading = false;
+      } else {
+        Fluttertoast.showToast(
+          msg: response['message'] ?? "Failed to fetch Data",
+          backgroundColor: Colors.red,
+          toastLength: Toast.LENGTH_LONG,
+        );
+        isLoading = false;
+      }
+    } catch (e) {
+      Fluttertoast.showToast(
+        msg: "Error: $e",
+        backgroundColor: Colors.red,
+        toastLength: Toast.LENGTH_LONG,
+      );
+      isLoading = false;
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+
+  ///Report Generate API
+
+Future<Map<String, dynamic>?> reportGenerate({
+  required BuildContext context,
+  required int attendanceID,
+})
+async {
+  isLoading = true;
+  notifyListeners();
+
+  try {
+    final response = await ApiService().get("${ApiConfig.getUserReport}$attendanceID");
+
+    if (response['success'] == true) {
+      return response;
+    } else {
+      Fluttertoast.showToast(
+        msg: response['message'] ?? "Failed to fetch Data",
+        backgroundColor: Colors.red,
+        toastLength: Toast.LENGTH_LONG,
+      );
+      return null;
+    }
+  } catch (e) {
+    Fluttertoast.showToast(
+      msg: "Error: $e",
+      backgroundColor: Colors.red,
+      toastLength: Toast.LENGTH_LONG,
+    );
+    return null;
+  } finally {
+    isLoading = false;
+    notifyListeners();
+  }
+}
+
+
+
 
 }
 
@@ -305,6 +415,18 @@ class BlockList {
 
 
   BlockList({required this.blockName, required this.blockCode,});
+}
+
+
+class SurveyHistoryList {
+  final String userID;
+  final int attendanceID;
+  final String hostelName;
+  final String hostelID;
+  final String attendanceDate;
+
+
+  SurveyHistoryList({required this.hostelName,required this.hostelID, required this.userID,required this.attendanceID,required this.attendanceDate,});
 }
 
 class Site {
