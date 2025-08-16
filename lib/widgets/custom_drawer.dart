@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:provider/provider.dart';
+import '../controllers/screens_controller.dart';
 import '../services/local_database.dart';
 import '../utils/color_constants.dart';
 
@@ -14,6 +16,7 @@ class SchoolDrawer extends StatefulWidget {
 class _SchoolDrawerState extends State<SchoolDrawer> {
   String appVersion = "";
   LocalDatabase localDatabase = LocalDatabase();
+  // final ScreenController screencontroller = ScreenController();
 
   @override
   void initState() {
@@ -27,7 +30,38 @@ class _SchoolDrawerState extends State<SchoolDrawer> {
       appVersion = packageInfo.version;
     });
   }
+  void _logoutUser(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return CupertinoAlertDialog(
+          title: const Text("Logout"),
+          content: const Text("Do you want to log out?"),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () {
+                final screenController = Provider.of<ScreenController>(context, listen: false);
 
+                screenController.remarkController.clear();
+                screenController.clearSelectedSite();
+                screenController.capturedImages.clear();
+
+                // Clear the local database as well
+                LocalDatabase().setLoginStatus("LoggedOut");
+                Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+
+              },
+              child: const Text("Logout", style: TextStyle(color: Colors.red)),
+            ),
+          ],
+        );
+      },
+    );
+  }
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -58,8 +92,7 @@ class _SchoolDrawerState extends State<SchoolDrawer> {
                   icon: Icons.logout,
                   title: "Logout",
                   onTap: () {
-                    Navigator.pop(context); // Close drawer
-                    _showLogoutDialog(context);
+                    _logoutUser(context);
                   },
                   isLogout: true, // A flag to style the logout button differently
                 ),

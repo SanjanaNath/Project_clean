@@ -12,9 +12,14 @@ class ScreenController extends ChangeNotifier {
   Site? selectedSite;
   LocalDatabase localDatabase = LocalDatabase();
   bool isAttendanceMarked = false;
-
+  bool isLoading = false;
   final List<Site> sites = [];
-
+  bool isGeneratingReport = false;
+  final TextEditingController remarkController = TextEditingController();
+  void setGeneratingReport(bool value) {
+    isGeneratingReport = value;
+    notifyListeners();
+  }
   final List<PhotoCategory> photoCategories = [
     PhotoCategory(name: 'Entrance', icon: Icons.home_work_rounded),
     PhotoCategory(name: 'Kitchen', icon: Icons.restaurant_menu_rounded),
@@ -54,7 +59,8 @@ class ScreenController extends ChangeNotifier {
       _showSnackBar(context, "Enable location from settings", Colors.green);
       return;
     }
-
+    isLoading = true;
+    notifyListeners();
     Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
 
@@ -66,18 +72,25 @@ class ScreenController extends ChangeNotifier {
     );
 
     // if (distance <= 100) {
-    //   isAttendanceMarked = true;
-    //   _showSnackBar(context, "Attendance marked!", Colors.green);
+    //   hostelAttendance(context: context, hostelID: hostelID, hostelName: hostelName).whenComplete(() {
+    //     isLoading = false;
+    //     isAttendanceMarked = true;
+    //   },);
+    //   if (isAttendanceMarked) {
+    //     _showSnackBar(context, "Attendance marked!", Colors.green);
+    //   }
     // } else {
+    //
     //   _showSnackBar(
     //       context,
     //       "You are too far from $selectedSiteName (Distance: ${distance.toStringAsFixed(2)} m)",
     //       Colors.red);
     // }
-    hostelAttendance(context: context, hostelID: hostelID, hostelName: hostelName).whenComplete(() {
+
+   await  hostelAttendance(context: context, hostelID: hostelID, hostelName: hostelName).whenComplete(() {
+      isLoading = false;
       isAttendanceMarked = true;
     },);
-
     notifyListeners();
   }
 
@@ -91,7 +104,12 @@ class ScreenController extends ChangeNotifier {
         .showSnackBar(SnackBar(content: Text(message), backgroundColor: color));
   }
 
-  bool isLoading = false;
+  void showSnackBar(BuildContext context, String message, Color color) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message), backgroundColor: color));
+  }
+
+
 
   bool get allCategoriesHavePhotos {
     for (var category in photoCategories) {
@@ -124,22 +142,21 @@ class ScreenController extends ChangeNotifier {
       final response = await ApiService().post(ApiConfig.hostelAttendance, body);
 
       if (response['success'] == true) {
-        isAttendanceMarked = true;
         localDatabase.setAttendanceID(response['attendance_id']);
+        // isAttendanceMarked = true;
         Fluttertoast.showToast(
           msg: response['message'],
           backgroundColor: Colors.green,
           toastLength: Toast.LENGTH_LONG,
         );
         print(" localDatabase.attendanceID ==========>${ localDatabase.attendanceID}");
-
-        isLoading = false;
       } else {
         Fluttertoast.showToast(
           msg: response['message'],
           backgroundColor: Colors.red,
           toastLength: Toast.LENGTH_LONG,
         );
+        isLoading = false;
       }
     } catch (e) {
       Fluttertoast.showToast(
@@ -230,7 +247,8 @@ class ScreenController extends ChangeNotifier {
           )),
         );
 
-      } else {
+      }
+      else {
         Fluttertoast.showToast(
           msg: response['message'] ?? "Failed to fetch Data",
           backgroundColor: Colors.red,
@@ -253,12 +271,48 @@ class ScreenController extends ChangeNotifier {
   ///Image Upload API
   Future<void> submitPhotos(BuildContext context, String remark)
   async {
-    try {
-      isLoading = true;
-      notifyListeners();
+    if (selectedSite == null) {
+      _showSnackBar(context, "Please select a site first.", Colors.red);
+      return;
+    }
 
+    // Check location permission
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        _showSnackBar(context, "Location permission is required to submit photos.", Colors.red);
+        return;
+      }
+    }
+    if (permission == LocationPermission.deniedForever) {
+      _showSnackBar(context, "Enable location from settings to submit photos.", Colors.red);
+      return;
+    }
 
-      var body = {
+    isLoading = true;
+    notifyListeners();
+
+      try {
+        Position position = await Geolocator.getCurrentPosition(
+            desiredAccuracy: LocationAccuracy.high);
+
+        double distance = Geolocator.distanceBetween(
+          position.latitude,
+          position.longitude,
+          selectedSite!.lat,
+          selectedSite!.lng,
+        );
+
+        // if (distance > 100) {
+        //   _showSnackBar(
+        //       context,
+        //       "You are too far from ${selectedSiteName} (Distance: ${distance.toStringAsFixed(2)} m). Can't submit photos.",
+        //       Colors.red);
+        //   return;
+        // }
+
+        var body = {
         "attendance_id": localDatabase.attendanceID,
         "remarks": remark,
         "image_type[0]": "Entrance",
@@ -296,22 +350,40 @@ class ScreenController extends ChangeNotifier {
         print("Sent files $files");
         print("Sent Body $body");
       // Send all files in one call
-      await ApiService().uploadImages(
-        "${ApiConfig.baseUrl}${ApiConfig.imageUpload}",
-        extraData: body,
-        multipleImages: files,
-      );
+        // Send all files in one call
+        final response = await ApiService().uploadImages(
+          "${ApiConfig.baseUrl}${ApiConfig.imageUpload}",
+          extraData: body,
+          multipleImages: files,
+        );
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Photos submitted successfully!")),
-      );
+        if (response['success'] == true) {
+          isLoading = false;
+          notifyListeners();
+          Fluttertoast.showToast(
+            msg: "Photos submitted successfully!",
+            backgroundColor: Colors.green,
+            toastLength: Toast.LENGTH_LONG,
+          );
+           remarkController.clear();
+          clearSelectedSite();
+          capturedImages.clear();
+          notifyListeners();
+        } else {
+          // Handle API failure response
+          Fluttertoast.showToast(
+            msg: response['message'] ?? "Photo submission failed.",
+            backgroundColor: Colors.red,
+            toastLength: Toast.LENGTH_LONG,
+          );
+          isLoading = false;
 
-      capturedImages.clear();
-      notifyListeners();
+        }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Upload failed: $e")),
       );
+      isLoading = false;
     } finally {
       isLoading = false;
       notifyListeners();

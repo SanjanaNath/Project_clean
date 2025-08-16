@@ -17,11 +17,13 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
-  bool _obscureRePassword = true;
+  bool _obscureNewPassword = true;
+  bool _obscureNewRePassword = true;
 
   final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _oldPasswordController = TextEditingController();
   final _rePasswordController = TextEditingController();
   final _emailController = TextEditingController();
 
@@ -56,6 +58,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               builder: (context, controller, child) {
                 return  ModalProgressHUD(
                   inAsyncCall: controller.isLoading,
+                  blur: 2,
                   progressIndicator: CircularProgressIndicator(
                     color: ColorConstants().teal,
                   ),
@@ -70,7 +73,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                             // Title
                             Text(
-                              'Register Account',
+                              'Update Password',
                               textAlign: TextAlign.center,
                               style: Theme
                                   .of(context)
@@ -83,7 +86,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              'Fill in your details to get started.',
+                              'Fill in your details.',
                               textAlign: TextAlign.center,
                               style:
                               Theme
@@ -108,15 +111,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             const SizedBox(height: 16),
 
                             // // ID Input
-                            TextFormField(
-                              controller: _emailController,
-                              decoration: const InputDecoration(
-                                labelText: 'Email',
-                                hintText: 'Enter your Email',
-                                prefixIcon: Icon(Icons.email),
-                              ),
-                              keyboardType: TextInputType.emailAddress,
-                            ),
+                            // TextFormField(
+                            //   controller: _emailController,
+                            //   decoration: const InputDecoration(
+                            //     labelText: 'Email',
+                            //     hintText: 'Enter your Email',
+                            //     prefixIcon: Icon(Icons.email),
+                            //   ),
+                            //   keyboardType: TextInputType.emailAddress,
+                            // ),
                             const SizedBox(height: 16),   // ID Input
 
                             TextFormField(
@@ -135,7 +138,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             TextFormField(
                               controller: _passwordController,
                               decoration: const InputDecoration(
-                                labelText: 'Password',
+                                labelText: 'Old Password',
                                 hintText: 'Create a password',
                                 prefixIcon: Icon(Icons.lock_rounded),
                               ),
@@ -144,26 +147,50 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             const SizedBox(height: 16),
 
                             TextFormField(
+                              controller: _oldPasswordController,
+                              decoration: InputDecoration(
+                                labelText: 'New Password',
+                                hintText: 'Enter password again',
+                                prefixIcon: const Icon(
+                                    Icons.lock_outline_rounded),
+                                // suffixIcon: IconButton(
+                                //   icon: Icon(
+                                //     _obscureNewPassword
+                                //         ? Icons.visibility_off_rounded
+                                //         : Icons.visibility_rounded,
+                                //   ),
+                                //   onPressed: () {
+                                //     setState(() {
+                                //       _obscureNewPassword = !_obscureNewPassword;
+                                //     });
+                                //   },
+                                // ),
+                              ),
+                              // obscureText: _obscureNewPassword,
+                            ),
+
+                            const SizedBox(height: 16),
+                            TextFormField(
                               controller: _rePasswordController,
                               decoration: InputDecoration(
-                                labelText: 'Re-enter Password',
+                                labelText: 'Re-enter New Password',
                                 hintText: 'Enter password again',
                                 prefixIcon: const Icon(
                                     Icons.lock_outline_rounded),
                                 suffixIcon: IconButton(
                                   icon: Icon(
-                                    _obscureRePassword
+                                    _obscureNewRePassword
                                         ? Icons.visibility_off_rounded
                                         : Icons.visibility_rounded,
                                   ),
                                   onPressed: () {
                                     setState(() {
-                                      _obscureRePassword = !_obscureRePassword;
+                                      _obscureNewRePassword = !_obscureNewRePassword;
                                     });
                                   },
                                 ),
                               ),
-                              obscureText: _obscureRePassword,
+                              obscureText: _obscureNewRePassword,
                             ),
                             const SizedBox(height: 24),
 
@@ -213,28 +240,28 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 return;
                               }
 
-                              controller.register(
-                                context: context,
-                                name: name,
-                                password: password,
-                                mobile: phone,
-                                email: email,
-                              );
+                              // controller.register(
+                              //   context: context,
+                              //   name: name,
+                              //   password: password,
+                              //   mobile: phone,
+                              //   email: email,
+                              // );
                             },
-                            child: const Text('Register'),
+                            child: const Text('Update Password'),
                           ),
                             const SizedBox(height: 24),
-
-                            // Already have an account?
-                            TextButton(
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                              child: Text(
-                                "Already have an account? Login",
-                                style: TextStyle(color: ColorConstants().teal),
-                              ),
-                            ),
+                            //
+                            // // Already have an account?
+                            // TextButton(
+                            //   onPressed: () {
+                            //     Navigator.pop(context);
+                            //   },
+                            //   child: Text(
+                            //     "Already have an account? Login",
+                            //     style: TextStyle(color: ColorConstants().teal),
+                            //   ),
+                            // ),
                           ],
                         ),
                       ),

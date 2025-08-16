@@ -23,10 +23,10 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: BackgroundCircles(
-        child:  Consumer<AuthController>(
-        builder: (context, controller, child) {
-          return  ModalProgressHUD(
+        child: Consumer<AuthController>(builder: (context, controller, child) {
+          return ModalProgressHUD(
             inAsyncCall: controller.isLoading,
+            blur: 2,
             progressIndicator: CircularProgressIndicator(
               color: ColorConstants().teal,
             ),
@@ -48,18 +48,22 @@ class _LoginScreenState extends State<LoginScreen> {
                         Text(
                           'Welcome Back!',
                           textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: const Color(0xFF333333),
-                          ),
+                          style: Theme.of(context)
+                              .textTheme
+                              .headlineMedium
+                              ?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: const Color(0xFF333333),
+                              ),
                         ),
                         const SizedBox(height: 8),
                         Text(
                           'Sign in to continue your survey.',
                           textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            color: const Color(0xFF666666),
-                          ),
+                          style:
+                              Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                    color: const Color(0xFF666666),
+                                  ),
                         ),
                         const SizedBox(height: 48),
                         TextFormField(
@@ -111,18 +115,26 @@ class _LoginScreenState extends State<LoginScreen> {
                                 password: _passwordController.text,
                                 email: _idController.text,
                               );
-
                             }
                           },
                           child: const Text('Login'),
                         ),
                         const SizedBox(height: 24),
+                        // TextButton(
+                        //   onPressed: () {
+                        //     Navigator.pushNamed(context, '/register');
+                        //   },
+                        //   child: Text(
+                        //     "Don't have an account? Register",
+                        //     style: TextStyle(color: ColorConstants().teal),
+                        //   ),
+                        // ),
                         TextButton(
                           onPressed: () {
                             Navigator.pushNamed(context, '/register');
                           },
                           child: Text(
-                            "Don't have an account? Register",
+                            "Change Password",
                             style: TextStyle(color: ColorConstants().teal),
                           ),
                         ),
@@ -133,9 +145,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
           );
-        }
-
-        ),
+        }),
       ),
     );
   }

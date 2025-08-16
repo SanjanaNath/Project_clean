@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:dio/dio.dart';
@@ -62,10 +63,44 @@ class ApiService {
   }
 
 
+  // /// Image Upload method
+  // Future<void> uploadImages(
+  //     String url,
+  //     {
+  //       Map<String, dynamic>? extraData,
+  //       Map<String, List<File>>? multipleImages,
+  //     }) async {
+  //   var request = http.MultipartRequest('POST', Uri.parse(url));
+  //
+  //   // Add form fields as strings
+  //   if (extraData != null) {
+  //     request.fields.addAll(
+  //       extraData.map((key, value) => MapEntry(key, value.toString())),
+  //     );
+  //   }
+  //
+  //   // Add all images
+  //   if (multipleImages != null) {
+  //     for (var entry in multipleImages.entries) {
+  //       for (var file in entry.value) {
+  //         request.files.add(
+  //           await http.MultipartFile.fromPath(entry.key, file.path),
+  //         );
+  //       }
+  //     }
+  //   }
+  //
+  //   var response = await request.send();
+  //   if (response.statusCode != 200) {
+  //     throw Exception('Failed to upload images');
+  //   }
+  // }
+
+
+
   /// Image Upload method
-  Future<void> uploadImages(
-      String url,
-      {
+  Future<Map<String, dynamic>> uploadImages(
+      String url, {
         Map<String, dynamic>? extraData,
         Map<String, List<File>>? multipleImages,
       }) async {
@@ -89,13 +124,23 @@ class ApiService {
       }
     }
 
-    var response = await request.send();
-    if (response.statusCode != 200) {
-      throw Exception('Failed to upload images');
+    try {
+      var streamedResponse = await request.send();
+      var response = await http.Response.fromStream(streamedResponse);
+
+      if (response.statusCode == 200) {
+        // Decode and return the JSON response
+        return json.decode(response.body);
+      } else {
+        // Throw an exception with the API's error message
+        var errorData = json.decode(response.body);
+        throw Exception(errorData['message'] ?? 'Failed to upload images with status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      // Re-throw the exception for the caller to handle
+      throw Exception('Failed to upload images: $e');
     }
   }
-
-
 
   /// Handles successful responses
   dynamic _handleResponse(Response response) {

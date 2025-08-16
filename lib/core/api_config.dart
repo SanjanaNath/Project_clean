@@ -2,12 +2,11 @@ class ApiConfig {
   ///Local Database Configurations..
   static const String databaseName = 'database';
   static const apiVersion = "api/v1/";
+  static const ip = "10.232.59.13";//hotspot
 
   /// Host Url
-  // static const baseUrl = "http://10.10.73.235:5000/$apiVersion";//iit
-  static const baseUrl = "http://10.232.59.13:5000/$apiVersion/"; //hotspot
-  static const baseUrl1 = "http://10.232.59.13:5000"; //hotspot
-  // static const baseUrl = "http://10.62.1.47:5000/$apiVersion"; //samagra
+  static const baseUrl = "http://$ip:5000/$apiVersion/"; //hotspot
+  static const baseUrl1 = "http://$ip:5000"; //hotspot
 
 
   /// Live Server

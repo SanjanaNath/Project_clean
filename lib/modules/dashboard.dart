@@ -1,6 +1,8 @@
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:provider/provider.dart';
 import '../../utils/color_constants.dart';
@@ -8,9 +10,6 @@ import '../controllers/screens_controller.dart';
 import '../services/local_database.dart';
 import '../widgets/custom_drawer.dart';
 import 'captured_gallery_screen.dart';
-
-// PhotoCategory class and other dependencies from your original code are assumed to exist.
-// This example focuses on the Dashboard UI.
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
@@ -21,7 +20,7 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard> {
   final LocalDatabase localDatabase = LocalDatabase();
-  final TextEditingController _remarkController = TextEditingController();
+   final ScreenController screencontroller = ScreenController();
   Future<void> _fetchBlock() async {
     return await context.read<ScreenController>().fetchBlock(
       context: context,
@@ -37,38 +36,38 @@ class _DashboardState extends State<Dashboard> {
   }
   @override
   void dispose() {
-    _remarkController.dispose();
+    screencontroller.remarkController.dispose();
     super.dispose();
   }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true, // Allows the body to extend behind the app bar for a unified look
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        backgroundColor: Colors.transparent, // Make the app bar transparent
-        elevation: 0, // Remove the shadow
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         iconTheme: const IconThemeData(color: Colors.white),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout, color: Colors.white),
-            tooltip: 'Logout',
-            onPressed: () => _logoutUser(context),
-          ),
-        ],
+        // actions: [
+        //   IconButton(
+        //     icon: const Icon(Icons.logout, color: Colors.white),
+        //     tooltip: 'Logout',
+        //     onPressed: () => _logoutUser(context, screencontroller),
+        //   ),
+        // ],
       ),
-      drawer: const SchoolDrawer(), // Assuming this is the new, attractive drawer
+      drawer: const SchoolDrawer(),
       body: Consumer<ScreenController>(
         builder: (context, controller, child) {
           return ModalProgressHUD(
             inAsyncCall: controller.isLoading,
+            blur: 2,
             progressIndicator: CircularProgressIndicator(
               color: ColorConstants().teal,
             ),
             child: Stack(
               children: [
-                // Top gradient background container
                 Container(
-                  height: 300,
+                  height: 350,
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
@@ -86,14 +85,14 @@ class _DashboardState extends State<Dashboard> {
                 ),
                 SafeArea(
                   child: SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 0.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        const SizedBox(height: 16),
+
                         // User info section
                         _buildUserInfoSection(context),
-                        const SizedBox(height: 40),
+                        const SizedBox(height: 20),
 
                         // Main action card
                         _buildMainActionCard(context, controller),
@@ -112,53 +111,58 @@ class _DashboardState extends State<Dashboard> {
   /// Builds the user info section at the top of the screen
   Widget _buildUserInfoSection(BuildContext context) {
     return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        // User avatar with a subtle shadow
-        Container(
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.2),
-                spreadRadius: 2,
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: const CircleAvatar(
-            radius: 30,
-            backgroundColor: Colors.white,
-            child: Icon(Icons.person_rounded, color: Colors.teal, size: 30),
-          ),
-        ),
-        const SizedBox(width: 16),
-        // User greeting
+
         Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Hello, ${localDatabase.userName ?? 'User'}!',
-              style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
+            Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    spreadRadius: 2,
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: const CircleAvatar(
+                  radius: 50,
+                  backgroundColor: Colors.white,
+                  backgroundImage: AssetImage('assets/images/cg.png')
               ),
             ),
-            const Text(
-              'Ready for your survey?',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.white70,
-              ),
+            const SizedBox(height: 10),
+            // User greeting
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Hello, ${localDatabase.userName ?? 'User'}!',
+                  style: GoogleFonts.lato(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+
+                Text(
+                  'Ready for your survey?',
+                  style: GoogleFonts.lato(
+                    fontSize: 16,
+                    color: Colors.white70,
+                  ),
+                ),
+              ],
             ),
           ],
-        ),
+        )
       ],
     );
   }
 
-  /// Builds the main card containing dropdowns and actions
   Widget _buildMainActionCard(BuildContext context, ScreenController controller) {
     return Card(
       shape: RoundedRectangleBorder(
@@ -171,7 +175,6 @@ class _DashboardState extends State<Dashboard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Dropdown for selecting block
             DropdownSearch<String>(
               items: controller.blocks.map((e) => e.blockName).toList(),
               popupProps: const PopupProps.menu(
@@ -197,8 +200,6 @@ class _DashboardState extends State<Dashboard> {
               },
             ),
             const SizedBox(height: 20),
-
-            // Dropdown for selecting site
             DropdownSearch<String>(
               items: controller.sites.map((e) => e.hostelName).toList(),
               popupProps: const PopupProps.menu(
@@ -217,8 +218,6 @@ class _DashboardState extends State<Dashboard> {
               },
             ),
             const SizedBox(height: 20),
-
-            /// Conditional UI based on site selection
             if (controller.selectedSiteName != null) ...[
               _buildAttendanceSection(context, controller),
               const SizedBox(height: 24),
@@ -226,23 +225,53 @@ class _DashboardState extends State<Dashboard> {
                 _photoCategoriesGrid(context, controller),
                 const SizedBox(height: 24),
                 if (controller.allCategoriesHavePhotos) ...[
-                  TextFormField(
-                    controller: _remarkController,
-                    decoration: _getDropdownDecoration(context, "Add Remarks").copyWith(
-                      prefixIcon: const Icon(Icons.edit_note, color: Colors.teal),
+                  ElevatedButton.icon(
+                    onPressed: () async {
+                      final result = await showDialog<String>(
+                        context: context,
+                        builder: (context) => RemarksDialog(
+                          initialRemarks: controller.remarkController.text,
+                        ),
+                      );
+                      if (result != null) {
+                        setState(() {
+                          controller.remarkController.text = result;
+                        });
+                      }
+                    },
+                    icon: const Icon(Icons.edit_note, color: Colors.white),
+                    label: const Text(
+                      'Add Remarks',
+                      style: TextStyle(fontSize: 16, color: Colors.white),
                     ),
-                    maxLines: 3,
-                    keyboardType: TextInputType.multiline,
-                    onChanged: (_) => setState(() {}), // Rebuild to check if remark is filled
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primaryTeal,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
                   ),
                   const SizedBox(height: 24),
-
-                  // Show submit button only if remark is not empty
-                  if (_remarkController.text.trim().isNotEmpty)
+                  if (controller.remarkController.text.isNotEmpty) ...[
+                    Text(
+                      'Remarks:',
+                      style: GoogleFonts.lato(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.deepBlue,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      controller.remarkController.text,
+                      style: GoogleFonts.lato(fontSize: 14, color: AppColors.textDark),
+                    ),
+                    const SizedBox(height: 24),
                     _buildSubmitButton(context, controller),
+                  ],
                 ],
               ] else ...[
-                // Spacer for when the button is not there, to maintain layout
                 const SizedBox(height: 20),
               ],
             ],
@@ -252,14 +281,13 @@ class _DashboardState extends State<Dashboard> {
     );
   }
 
-  /// Builds the attendance status section
   Widget _buildAttendanceSection(BuildContext context, ScreenController controller) {
     return Column(
       children: [
         Icon(
           controller.isAttendanceMarked ? Icons.check_circle_rounded : Icons.info_outline_rounded,
           size: 60,
-          color: controller.isAttendanceMarked ? Colors.green : ColorConstants().teal,
+          color: controller.isAttendanceMarked ? AppColors.primaryTeal : AppColors.accentOrange,
         ),
         const SizedBox(height: 16),
         Text(
@@ -267,9 +295,10 @@ class _DashboardState extends State<Dashboard> {
               ? 'Attendance Marked!'
               : 'Site Selected: ${controller.selectedSiteName}',
           textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+          style: GoogleFonts.lato(
             fontWeight: FontWeight.bold,
-            color: const Color(0xFF333333),
+            fontSize: 20,
+            color: AppColors.deepBlue,
           ),
         ),
         const SizedBox(height: 8),
@@ -278,15 +307,16 @@ class _DashboardState extends State<Dashboard> {
               ? 'You can now proceed with taking photos.'
               : 'Tap below to mark your attendance for ${controller.selectedSiteName}.',
           textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-            color: const Color(0xFF666666),
+          style: GoogleFonts.lato(
+            fontSize: 16,
+            color: AppColors.textMedium,
           ),
         ),
         const SizedBox(height: 24),
         if (!controller.isAttendanceMarked)
           ElevatedButton.icon(
             style: ElevatedButton.styleFrom(
-              backgroundColor: ColorConstants().teal,
+              backgroundColor: AppColors.primaryTeal,
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -298,13 +328,12 @@ class _DashboardState extends State<Dashboard> {
               controller.selectedSiteName ?? '',
             ),
             icon: const Icon(Icons.location_on_rounded),
-            label: const Text('Mark Attendance', style: TextStyle(fontSize: 16)),
+            label: Text('Mark Attendance', style: GoogleFonts.lato(fontSize: 16)),
           ),
       ],
     );
   }
 
-  /// Builds the grid of photo categories
   Widget _photoCategoriesGrid(BuildContext context, ScreenController controller) {
     return GridView.builder(
       shrinkWrap: true,
@@ -314,6 +343,8 @@ class _DashboardState extends State<Dashboard> {
       itemBuilder: (context, index) {
         final category = controller.photoCategories[index];
         final images = controller.capturedImages[category.name] ?? [];
+        final hasImage = images.isNotEmpty;
+
         return InkWell(
           onTap: () {
             Navigator.push(
@@ -327,21 +358,88 @@ class _DashboardState extends State<Dashboard> {
               ),
             );
           },
+
+
+          // onTap: () async {  // Change to an async function
+          //   if (controller.selectedSite == null) {
+          //     controller.showSnackBar(context, "Please select a site first.", Colors.red);
+          //     return;
+          //   }
+          //
+          //   LocationPermission permission = await Geolocator.checkPermission();
+          //   if (permission == LocationPermission.denied) {
+          //     permission = await Geolocator.requestPermission();
+          //     if (permission == LocationPermission.denied) {
+          //       controller.showSnackBar(context, "Location permission is required to take photos.", Colors.red);
+          //       return;
+          //     }
+          //   }
+          //   if (permission == LocationPermission.deniedForever) {
+          //     controller.showSnackBar(context, "Enable location from settings to take photos.", Colors.red);
+          //     return;
+          //   }
+          //
+          //   Position position = await Geolocator.getCurrentPosition(
+          //       desiredAccuracy: LocationAccuracy.high);
+          //
+          //   double distance = Geolocator.distanceBetween(
+          //     position.latitude,
+          //     position.longitude,
+          //     controller.selectedSite!.lat,
+          //     controller.selectedSite!.lng,
+          //   );
+          //
+          //   if (distance <= 100) {
+          //     // If within 100m, navigate to the next screen
+          //     Navigator.push(
+          //       context,
+          //       MaterialPageRoute(
+          //         builder: (_) => CategoryGalleryScreen(
+          //           category: category.name,
+          //           images: images,
+          //           onImagesUpdated: (imgs) => controller.updateImages(category.name, imgs),
+          //         ),
+          //       ),
+          //     );
+          //   } else {
+          //     controller.showSnackBar(
+          //         context,
+          //         "You are too far from ${controller.selectedSiteName} (Distance: ${distance.toStringAsFixed(2)} m).",
+          //         Colors.red);
+          //   }
+          // },
           child: Card(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                images.isNotEmpty
-                    ? Image.file(images.last,
-                    width: 80, height: 80, fit: BoxFit.cover)
-                    : Icon(category.icon, size: 48, color: ColorConstants().teal),
-                const SizedBox(height: 8),
-                Text(category.name,
-                    style: const TextStyle(fontWeight: FontWeight.bold)),
-                if (images.isNotEmpty)
-                  Text("${images.length} photo(s)",
-                      style: const TextStyle(fontSize: 12)),
-              ],
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            elevation: hasImage ? 8 : 4,
+            shadowColor: hasImage ? AppColors.accentOrange.withOpacity(0.4) : AppColors.lightGrey,
+            child: Container(
+              decoration: BoxDecoration(
+                color: hasImage ? Colors.white : AppColors.backgroundLight,
+                borderRadius: BorderRadius.circular(16),
+                border: hasImage ? Border.all(color: AppColors.accentOrange, width: 2) : null,
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  hasImage
+                      ? ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.file(images.last,
+                        width: 80, height: 80, fit: BoxFit.cover),
+                  )
+                      : Icon(category.icon, size: 48, color: AppColors.deepBlue),
+                  const SizedBox(height: 8),
+                  Text(category.name,
+                      style: GoogleFonts.lato(
+                          fontWeight: FontWeight.bold, color: AppColors.deepBlue)),
+                  if (hasImage)
+                    Text("${images.length} photo(s)",
+                        style: GoogleFonts.lato(
+                            fontSize: 12, color: AppColors.textMedium)),
+                ],
+              ),
             ),
           ),
         );
@@ -349,18 +447,17 @@ class _DashboardState extends State<Dashboard> {
     );
   }
 
-  /// Builds the submit button
   Widget _buildSubmitButton(BuildContext context, ScreenController controller) {
     return ElevatedButton.icon(
       style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.teal.shade800,
+        backgroundColor: AppColors.primaryTeal,
         foregroundColor: Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         padding: const EdgeInsets.symmetric(vertical: 16),
         elevation: 5,
-        textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        textStyle: GoogleFonts.lato(fontSize: 16, fontWeight: FontWeight.bold),
       ),
-      icon: const Icon(Icons.cloud_upload),
+      icon: const Icon(Icons.cloud_upload, color: Colors.white,),
       label: const Text("Submit Photos"),
       onPressed: () async {
         if (controller.capturedImages.isEmpty ||
@@ -369,20 +466,16 @@ class _DashboardState extends State<Dashboard> {
             const SnackBar(content: Text("Please capture at least one photo.")),
           );
           return;
-
-
         }
-        await controller.submitPhotos(context,  _remarkController.text.trim());
-
+        await controller.submitPhotos(context,  controller.remarkController.text.trim());
       },
     );
   }
 
-  /// Helper function for consistent dropdown decoration
   InputDecoration _getDropdownDecoration(BuildContext context, String label) {
     return InputDecoration(
       labelText: label,
-      labelStyle: TextStyle(color: ColorConstants().teal),
+      labelStyle: GoogleFonts.lato(color: AppColors.deepBlue),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(15),
@@ -390,19 +483,19 @@ class _DashboardState extends State<Dashboard> {
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(15),
-        borderSide: BorderSide.none,
+        borderSide: BorderSide(color: AppColors.lightGrey, width: 1),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(15),
-        borderSide: BorderSide(color: ColorConstants().teal, width: 2),
+        borderSide: const BorderSide(color: AppColors.primaryTeal, width: 2),
       ),
       filled: true,
-      fillColor: Colors.grey.shade100,
+      fillColor: Colors.white,
     );
   }
 
   /// Shows the logout confirmation dialog
-  void _logoutUser(BuildContext context) {
+  void _logoutUser(BuildContext context, ScreenController controller) {
     showDialog(
       context: context,
       builder: (context) {
@@ -418,6 +511,9 @@ class _DashboardState extends State<Dashboard> {
               onPressed: () {
                 Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
                 LocalDatabase().setLoginStatus("LoggedOut");
+                controller.remarkController.clear();
+                controller.clearSelectedSite();
+                controller.capturedImages.clear();
               },
               child: const Text("Logout", style: TextStyle(color: Colors.red)),
             ),
