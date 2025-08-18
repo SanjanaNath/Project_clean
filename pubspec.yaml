@@ -54,6 +54,14 @@ dependencies:
   path_provider: ^2.1.5
   pdf: ^3.11.3
   google_fonts: ^6.3.0
+  permission_handler: ^12.0.1
+  animate_do: ^4.2.0
+#  device_preview: ^0.5.5
+
+flutter_launcher_icons:
+    android: true
+    ios: true
+    image_path: "assets/images/Ic_app_icon.png"
 
 dev_dependencies:
   flutter_test:

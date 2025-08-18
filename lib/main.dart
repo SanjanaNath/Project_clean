@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:project_clean/controllers/auth_controller.dart';
+import 'package:project_clean/modules/splash_screen.dart';
 import 'package:project_clean/services/local_database.dart';
 import 'package:provider/provider.dart';
 import 'package:project_clean/modules/register_screen.dart';
@@ -86,12 +87,14 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      initialRoute: LocalDatabase().loginStatus == "LoggedIn"? '/dashboard':'/login',
+      // initialRoute: LocalDatabase().loginStatus == "LoggedIn"? '/dashboard':'/login',
+      initialRoute: "/splash",
       routes: {
         '/login': (context) => const LoginScreen(),
         '/register': (context) => const RegisterScreen(),
         '/dashboard': (context) =>  Dashboard(),
         '/report': (context) =>  ReportScreen(),
+        '/splash': (context) =>  SplashScreen(),
       },
     );
   }

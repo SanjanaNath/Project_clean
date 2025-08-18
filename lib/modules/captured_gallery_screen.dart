@@ -29,33 +29,111 @@ class _CategoryGalleryScreenState extends State<CategoryGalleryScreen> {
     _images = List<File>.from(widget.images);
   }
 
+  // Future<void> _pickImage() async {
+  //   int maxImages = (widget.category == 'Entrance' || widget.category == 'Kitchen') ? 3 : 10;
+  //
+  //   if (_images.length >= maxImages) {
+  //     Fluttertoast.showToast(
+  //       msg: "You can only add up to $maxImages photos for ${widget.category}.",
+  //       toastLength: Toast.LENGTH_SHORT,
+  //       gravity: ToastGravity.BOTTOM,
+  //       backgroundColor: Colors.black54,
+  //       textColor: Colors.white,
+  //     );
+  //     return;
+  //   }
+  //
+  //   // Request camera permission
+  //   var status = await Permission.camera.request();
+  //
+  //   // Check the status
+  //   if (status.isDenied) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       const SnackBar(
+  //         content: Text("Camera permission is required to take photos."),
+  //         backgroundColor: Colors.red,
+  //       ),
+  //     );
+  //     // if (mounted) { // Check if the widget is still in the tree
+  //     //   ScaffoldMessenger.of(context).showSnackBar(
+  //     //     const SnackBar(
+  //     //       content: Text("Camera permission is required to take photos."),
+  //     //       backgroundColor: Colors.red,
+  //     //     ),
+  //     //   );
+  //     // }
+  //     return;
+  //   }
+  //
+  //   if (status.isPermanentlyDenied) {
+  //     // User has denied permission forever, guide them to app settings
+  //     if (mounted) {
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(
+  //           content: const Text("Camera permission is permanently denied. Please enable it from app settings."),
+  //           backgroundColor: Colors.red,
+  //           action: SnackBarAction(
+  //             label: 'Settings',
+  //             onPressed: () => openAppSettings(), // Opens the app settings page
+  //           ),
+  //         ),
+  //       );
+  //     }
+  //     return;
+  //   }
+  //
+  //
+  //   final picker = ImagePicker();
+  //   final pickedFile = await picker.pickImage(
+  //     source: ImageSource.camera,
+  //     imageQuality: 50,
+  //   );
+  //
+  //   if (pickedFile != null) {
+  //     setState(() {
+  //       _images.add(File(pickedFile.path));
+  //     });
+  //     widget.onImagesUpdated(_images);
+  //   }
+  // }
+
   Future<void> _pickImage() async {
-    int maxImages = (widget.category == 'Entrance' || widget.category == 'Kitchen') ? 3 : 10;
+    try {
+      int maxImages = (widget.category == 'Entrance' || widget.category == 'Kitchen') ? 3 : 10;
 
-    if (_images.length >= maxImages) {
-      Fluttertoast.showToast(
-        msg: "You can only add up to $maxImages photos for ${widget.category}.",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
-        backgroundColor: Colors.black54,
-        textColor: Colors.white,
+      if (_images.length >= maxImages) {
+        Fluttertoast.showToast(
+          msg: "You can only add up to $maxImages photos for ${widget.category}.",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.black54,
+          textColor: Colors.white,
+        );
+        return;
+      }
+      final picker = ImagePicker();
+      final pickedFile = await picker.pickImage(
+        source: ImageSource.camera,
+        imageQuality: 50,
       );
-      return;
-    }
 
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(
-      source: ImageSource.camera,
-      imageQuality: 50,
-    );
+      if (pickedFile != null) {
+        setState(() {
+          _images.add(File(pickedFile.path));
+        });
+        widget.onImagesUpdated(_images);
+      }
+    } catch (e) {
 
-    if (pickedFile != null) {
-      setState(() {
-        _images.add(File(pickedFile.path));
-      });
-      widget.onImagesUpdated(_images);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Camera permission is required to take a photo."),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
+
 
   void _deleteImage(int index) {
     setState(() {

@@ -454,7 +454,7 @@ class _ReportScreenState extends State<ReportScreen> {
               // Your app logo widget would go here
 
               pw.Column(
-                crossAxisAlignment: pw.CrossAxisAlignment.end,
+                crossAxisAlignment: pw.CrossAxisAlignment.center,
                 children: [
                   pw.Text('HOSTEL INSPECTION REPORT',
                       style: pw.TextStyle(
