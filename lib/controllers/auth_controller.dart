@@ -45,7 +45,7 @@ class AuthController extends ChangeNotifier {
         LocalDatabase().setUserID(response['data']['user']['user_id']);
         LocalDatabase().setLoginStatus("LoggedIn");
         isLoading = false;
-        Navigator.pushNamedAndRemoveUntil(context, '/dashboard', (route) => false,);
+        Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false,);
 
       } else {
         Fluttertoast.showToast(

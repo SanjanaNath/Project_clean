@@ -44,7 +44,7 @@ class ScreenController extends ChangeNotifier {
   }
 
 
-  Future<void> markAttendance(BuildContext context, String hostelID ,  String hostelName) async {
+  Future<void> markAttendance(BuildContext context, int hostelID_id ,  String hostelName) async {
     if (selectedSite == null) return;
 
     LocationPermission permission = await Geolocator.checkPermission();
@@ -83,11 +83,15 @@ class ScreenController extends ChangeNotifier {
     //
     //   _showSnackBar(
     //       context,
-    //       "You are too far from $selectedSiteName (Distance: ${distance.toStringAsFixed(2)} m)",
+    //       "You are too far from $selectedSiteName)",
     //       Colors.red);
+    //   // _showSnackBar(
+    //   //     context,
+    //   //     "You are too far from $selectedSiteName (Distance: ${distance.toStringAsFixed(2)} m)",
+    //   //     Colors.red);
     // }
 
-   await  hostelAttendance(context: context, hostelID: hostelID, hostelName: hostelName).whenComplete(() {
+   await  hostelAttendance(context: context, hostelID: hostelID_id.toString(), hostelName: hostelName).whenComplete(() {
       isLoading = false;
       isAttendanceMarked = true;
     },);
@@ -240,6 +244,7 @@ class ScreenController extends ChangeNotifier {
         sites.clear();
         sites.addAll(
           dataList.map((item) => Site(
+            hostelID_id: item["id"] ?? 0,
             hostelID: item['hostel_id'] ?? '',
             hostelName: item['hostel_name'] ?? 0,
             lat: item['latitude'] ?? 0,
@@ -307,7 +312,7 @@ class ScreenController extends ChangeNotifier {
         // if (distance > 100) {
         //   _showSnackBar(
         //       context,
-        //       "You are too far from ${selectedSiteName} (Distance: ${distance.toStringAsFixed(2)} m). Can't submit photos.",
+        //       "You are too far from $selectedSiteName. Can't submit photos.",
         //       Colors.red);
         //   return;
         // }
@@ -502,12 +507,13 @@ class SurveyHistoryList {
 }
 
 class Site {
+  final int hostelID_id;
   final String hostelName;
   final String hostelID;
   final double lat;
   final double lng;
 
-  Site({required this.hostelName, required this.lat,required this.hostelID, required this.lng});
+  Site({required this.hostelName, required this.lat,required this.hostelID, required this.lng, required this.hostelID_id});
 }
 
 

@@ -1,4 +1,4 @@
-package com.example.project_clean
+package com.hostel_inspection.app
 
 import io.flutter.embedding.android.FlutterActivity
 

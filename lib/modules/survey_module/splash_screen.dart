@@ -3,10 +3,10 @@ import 'dart:async';
 import 'package:animate_do/animate_do.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../../../services/local_database.dart';
+import '../../../../services/local_database.dart';
 import 'package:flutter/material.dart';
 
-import '../widgets/backgroundCircles.dart';
+import '../../widgets/backgroundCircles.dart';
 
 
 
@@ -21,7 +21,6 @@ class SplashScreenState extends State<SplashScreen>
   static const String KEYLOGIN = "Login";
   Animation<double>? animation1;
   LocalDatabase localDatabase = LocalDatabase();
-  List<Timer> _timers = [];
   @override
   void initState() {
     super.initState();
@@ -33,7 +32,7 @@ class SplashScreenState extends State<SplashScreen>
     if (localDatabase.loginStatus == "LoggedIn") {
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        Navigator.pushNamedAndRemoveUntil(context, '/dashboard', (route) => false,);
+        Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false,);
       });
     } else {
       // _timers.add(Timer(const Duration(seconds: 4), () {
@@ -65,8 +64,6 @@ class SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
-    double _width = MediaQuery.of(context).size.width;
-    double _height = MediaQuery.of(context).size.height;
     Size size = MediaQuery.of(context).size;
     return Scaffold(
       backgroundColor: Colors.white,

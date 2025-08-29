@@ -7,7 +7,7 @@ import 'package:project_clean/utils/color_constants.dart';
 import 'package:project_clean/widgets/backgroundCircles.dart';
 import 'package:provider/provider.dart';
 
-import '../widgets/custom_loader.dart';
+import '../../widgets/custom_loader.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});

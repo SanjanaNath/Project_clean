@@ -4,8 +4,8 @@ import 'package:project_clean/utils/color_constants.dart';
 import 'package:project_clean/widgets/backgroundCircles.dart';
 import 'package:provider/provider.dart';
 
-import '../controllers/auth_controller.dart';
-import '../services/local_database.dart';
+import '../../controllers/auth_controller.dart';
+import '../../services/local_database.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -132,6 +132,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         TextButton(
                           onPressed: () {
                             Navigator.pushNamed(context, '/register');
+
                           },
                           child: Text(
                             "Change Password",

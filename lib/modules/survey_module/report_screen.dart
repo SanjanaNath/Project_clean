@@ -13,8 +13,9 @@ import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:http/http.dart' as http;
-import '../utils/color_constants.dart';
-import '../widgets/no_data_found.dart';
+
+import '../../utils/color_constants.dart';
+import '../../widgets/no_data_found.dart';
 
 
 class ReportScreen extends StatefulWidget {
@@ -25,28 +26,16 @@ class ReportScreen extends StatefulWidget {
 }
 
 class _ReportScreenState extends State<ReportScreen> {
-  // String? loginType = LocalDatabase().loginType;
-  // Future fetchBookingHistory() async {
-  //   // Access the userId from LocalDatabase
-  //   String? userId = LocalDatabase().userId;
-  //
-  //   print('userId======>$userId');
-  //   if (userId != null && userId.isNotEmpty) {
-  //     return await context.read<NyotaBhojController>().NyotaBookingHistory(
-  //         context: context, userId: userId, loginType: loginType ?? '');
-  //   } else {
-  //     print("Error: User ID is null or empty");
-  //   }
-  // }
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // Call the API to fetch survey history data
       Provider.of<ScreenController>(context, listen: false).surveyHistory(context: context);
     });
   }
+
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;

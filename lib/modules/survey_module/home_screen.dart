@@ -5,20 +5,20 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:provider/provider.dart';
-import '../../utils/color_constants.dart';
-import '../controllers/screens_controller.dart';
-import '../services/local_database.dart';
-import '../widgets/custom_drawer.dart';
+import '../../../utils/color_constants.dart';
+import '../../controllers/screens_controller.dart';
+import '../../services/local_database.dart';
+import '../../widgets/custom_drawer.dart';
 import 'captured_gallery_screen.dart';
 
-class Dashboard extends StatefulWidget {
-  const Dashboard({super.key});
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
 
   @override
-  State<Dashboard> createState() => _DashboardState();
+  State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _DashboardState extends State<Dashboard> {
+class _HomeScreenState extends State<HomeScreen> {
   final LocalDatabase localDatabase = LocalDatabase();
    final ScreenController screencontroller = ScreenController();
   Future<void> _fetchBlock() async {
@@ -324,7 +324,7 @@ class _DashboardState extends State<Dashboard> {
             ),
             onPressed: () => controller.markAttendance(
               context,
-              controller.selectedSite?.hostelID ?? '',
+              controller.selectedSite?.hostelID_id ?? 0,
               controller.selectedSiteName ?? '',
             ),
             icon: const Icon(Icons.location_on_rounded),
@@ -358,7 +358,7 @@ class _DashboardState extends State<Dashboard> {
               ),
             );
           },
-
+          //
 
           // onTap: () async {  // Change to an async function
           //   if (controller.selectedSite == null) {
@@ -390,7 +390,6 @@ class _DashboardState extends State<Dashboard> {
           //   );
           //
           //   if (distance <= 100) {
-          //     // If within 100m, navigate to the next screen
           //     Navigator.push(
           //       context,
           //       MaterialPageRoute(
@@ -404,7 +403,7 @@ class _DashboardState extends State<Dashboard> {
           //   } else {
           //     controller.showSnackBar(
           //         context,
-          //         "You are too far from ${controller.selectedSiteName} (Distance: ${distance.toStringAsFixed(2)} m).",
+          //         "You are too far from ${controller.selectedSiteName}.",
           //         Colors.red);
           //   }
           // },
@@ -494,32 +493,4 @@ class _DashboardState extends State<Dashboard> {
     );
   }
 
-  /// Shows the logout confirmation dialog
-  void _logoutUser(BuildContext context, ScreenController controller) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return CupertinoAlertDialog(
-          title: const Text("Logout"),
-          content: const Text("Do you want to log out?"),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text("Cancel"),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
-                LocalDatabase().setLoginStatus("LoggedOut");
-                controller.remarkController.clear();
-                controller.clearSelectedSite();
-                controller.capturedImages.clear();
-              },
-              child: const Text("Logout", style: TextStyle(color: Colors.red)),
-            ),
-          ],
-        );
-      },
-    );
-  }
 }

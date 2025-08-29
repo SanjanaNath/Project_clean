@@ -1,0 +1,4 @@
+storePassword=iitbhilai123
+keyPassword=iitbhilai123
+keyAlias=upload
+storeFile=D:/Github/Project_clean/push/project-clean-keystore.jks
