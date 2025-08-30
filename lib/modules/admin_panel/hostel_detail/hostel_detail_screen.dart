@@ -7,40 +7,38 @@ import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
-import 'package:project_clean/controllers/screens_controller.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:http/http.dart' as http;
 import '../../../controllers/admin_dashboard_controller.dart';
+import '../../../controllers/screens_controller.dart';
 import '../../../core/api_config.dart';
 import '../../../utils/color_constants.dart';
 import '../../../widgets/no_data_found.dart';
 
-class OfficerDetailScreen extends StatefulWidget {
-  final String officerID;
-  final String officerName;
-  final String officerNo;
-
-  const OfficerDetailScreen({
+class HostelDetailScreen extends StatefulWidget {
+  final String hostelID;
+  final String hostelName;
+  final String hostelTotalVisits;
+  const HostelDetailScreen({
     super.key,
-    required this.officerID,
-    required this.officerName,
-    required this.officerNo,
+    required this.hostelID,
+    required this.hostelName,
+    required this.hostelTotalVisits,
   });
 
   @override
-  State<OfficerDetailScreen> createState() => _OfficerDetailScreenState();
+  State<HostelDetailScreen> createState() => _HostelDetailScreenState();
 }
 
-class _OfficerDetailScreenState extends State<OfficerDetailScreen> {
-
+class _HostelDetailScreenState extends State<HostelDetailScreen> {
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<DashboardController>(context, listen: false)
-          .getOfficerDetails(context: context, officerID: widget.officerID);
+          .getHostelDetails(context: context, hostelID: widget.hostelID);
     });
   }
 
@@ -57,12 +55,11 @@ class _OfficerDetailScreenState extends State<OfficerDetailScreen> {
             ),
           ),
         ),
-        // centerTitle: true,
         title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start, // Align title to the left
           children: [
             Text(
-              widget.officerName,
+              widget.hostelName,
               style: GoogleFonts.lato(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -70,7 +67,7 @@ class _OfficerDetailScreenState extends State<OfficerDetailScreen> {
               ),
             ),
             Text(
-              widget.officerNo,
+              'Total Surveys: ${widget.hostelTotalVisits}',
               style: GoogleFonts.lato(
                 fontSize: 14,
                 color: Colors.black54,
@@ -81,12 +78,12 @@ class _OfficerDetailScreenState extends State<OfficerDetailScreen> {
       ),
       body: Consumer<DashboardController>(
         builder: (context, controller, child) {
-          if (controller.officerDetailList.isEmpty && !controller.isLoading) {
+          if (controller.hostelDetailList.isEmpty && !controller.isLoading) {
             return  NoDataFound(
-              buildContext: context ,
+              buildContext: context,
               heightFactor: 0.35,
               color: Colors.teal,
-              message: 'No Data Found',
+              message: 'No Survey Found',
             );
           }
 
@@ -102,7 +99,7 @@ class _OfficerDetailScreenState extends State<OfficerDetailScreen> {
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 14 , horizontal: 20),
                   child: Text(
-                    'Hostels Visited', // Clear title for the list
+                    'Officer Visited', // Clear title for the list
                     style: GoogleFonts.poppins(
                       fontSize: 20,
                       fontWeight: FontWeight.w600,
@@ -112,153 +109,10 @@ class _OfficerDetailScreenState extends State<OfficerDetailScreen> {
                 ),
                 Expanded(
                   child: ListView.builder(
-                    itemCount: controller.officerDetailList.length,
+                    itemCount: controller.hostelDetailList.length,
                     itemBuilder: (context, index) {
-                      final detail = controller.officerDetailList[index];
-                      final formattedDate = DateFormat('dd-MM-yyyy')
-                          .format(DateTime.parse(detail.attendanceDate));
-
-                      return Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(15),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.teal.withOpacity(0.2),
-                              spreadRadius: 2,
-                              blurRadius: 10,
-                              offset: const Offset(0, 5),
-                            ),
-                          ],
-                          gradient: LinearGradient(
-                            colors: [Colors.teal.shade50, Colors.teal.shade100],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(18.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Hostel Name with Icon
-                              Row(
-                                children: [
-                                  const Icon(Icons.home_work_outlined, color: AppColors.blueGrey, size: 20),
-                                  const SizedBox(width: 10),
-                                  Expanded(
-                                    child: Text(
-                                      detail.hostelName,
-                                      style: GoogleFonts.poppins(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w600,
-                                          color: AppColors.blueGrey
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const Divider(height: 20, thickness: 1, color:AppColors.lightBlueGrey),
-                              // Survey Date with Icon
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-
-                                children: [
-                                Row(
-                                  children: [
-                                    const Icon(Icons.calendar_today, color: AppColors.blueGrey, size: 20),
-                                    const SizedBox(width: 10),
-                                    Text(
-                                      'Survey Date: $formattedDate',
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w500,
-                                        color:AppColors.blueGrey,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-
-                                  Consumer<ScreenController>(
-                                    builder: (context, screenController, child) {
-                                      return  ElevatedButton.icon(
-                                        onPressed: screenController.isGeneratingReport
-                                            ? null // Disable the button while the report is generating
-                                            : () async {
-                                          // 1. Show the loader.
-                                          screenController.setGeneratingReport(true);
-
-                                          try {
-                                            final response = await screenController.reportGenerate(
-                                              context: context,
-                                              attendanceID: int.parse(detail.attendanceID),
-                                            );
-
-                                            if (response != null && response['success'] == true) {
-                                              final attendanceData = response['attendance'];
-                                              final imagesData = response['images'] as List<dynamic>;
-                                              final answersData = response['answers'] as List<dynamic>;
-                                              Map<String, List<String>> groupedImages = {};
-                                              for (var image in imagesData) {
-                                                final imageType = image['image_type'];
-                                                final imageUrl = image['image_url'];
-                                                if (imageUrl != null) {
-                                                  final fullUrl = '${ApiConfig.baseUrl1}$imageUrl';
-                                                  if (!groupedImages.containsKey(imageType)) {
-                                                    groupedImages[imageType] = [];
-                                                  }
-                                                  groupedImages[imageType]?.add(fullUrl);
-                                                }
-                                              }
-                                              final remarks = (imagesData.isNotEmpty && imagesData.first['remarks'] != null)
-                                                  ? imagesData.first['remarks']
-                                                  : '';
-
-                                              await generateReport(
-                                                context: context,
-                                                hostelName: attendanceData['hostel_name'] ?? '',
-                                                hostelId: attendanceData['hostel_id'] ?? '',
-                                                date: DateFormat('dd/MM/yyyy').format(DateTime.parse(attendanceData['attendance_date'])),
-                                                entranceUrls: groupedImages['Entrance'] ?? [],
-                                                kitchenUrls: groupedImages['Kitchen'] ?? [],
-                                                toiletUrls: groupedImages['Bathroom & Toilet'] ?? [],
-                                                roomUrls: groupedImages['Room'] ?? [],
-                                                remarks: remarks,
-                                                controller: screenController,
-                                                answers: answersData,
-                                              );
-                                            }
-                                          } finally {
-                                            screenController.setGeneratingReport(false);
-                                          }
-                                        },
-                                        icon: const Icon(Icons.picture_as_pdf, size: 16, color: Colors.white),
-                                        label: Text(
-                                          "Generate",
-                                          style: GoogleFonts.poppins(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w600,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.teal,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(12),
-                                          ),
-                                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                                          elevation: 3,
-                                        ),
-                                      );
-                                    },
-
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
+                      final visit = controller.hostelDetailList[index];
+                      return HostelVisitCard(visit: visit);
                     },
                   ),
                 ),
@@ -267,6 +121,195 @@ class _OfficerDetailScreenState extends State<OfficerDetailScreen> {
           );
         },
       ),
+    );
+  }
+
+}
+
+class HostelVisitCard extends StatelessWidget {
+  final HostelDetailList visit;
+  const HostelVisitCard({Key? key, required this.visit}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final formattedDate = DateFormat('dd-MM-yyyy').format(DateTime.parse(visit.attendanceDate));
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.teal.withOpacity(0.2),
+            spreadRadius: 2,
+            blurRadius: 10,
+            offset: const Offset(0, 5),
+          ),
+        ],
+        // border: Border.all(color: AppColors.primaryTeal),
+        gradient: LinearGradient(
+          colors: [Colors.teal.shade50, Colors.teal.shade100],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Officer Name
+            Row(
+              children: [
+                const Icon(Icons.person, color: Colors.blueGrey, size: 24),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        visit.officerName,
+                        style: GoogleFonts.lato(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blueGrey.shade800,
+                        ),
+                      ),
+                      Consumer<ScreenController>(
+                        builder: (context, screenController, child) {
+                          return  ElevatedButton.icon(
+                            onPressed: screenController.isGeneratingReport
+                                ? null // Disable the button while the report is generating
+                                : () async {
+                              // 1. Show the loader.
+                              screenController.setGeneratingReport(true);
+
+                              try {
+                                final response = await screenController.reportGenerate(
+                                  context: context,
+                                  attendanceID: int.parse(visit.attendanceID),
+                                );
+
+                                if (response != null && response['success'] == true) {
+                                  final attendanceData = response['attendance'];
+                                  final imagesData = response['images'] as List<dynamic>;
+                                  final answersData = response['answers'] as List<dynamic>;
+                                  Map<String, List<String>> groupedImages = {};
+                                  for (var image in imagesData) {
+                                    final imageType = image['image_type'];
+                                    final imageUrl = image['image_url'];
+                                    if (imageUrl != null) {
+                                      final fullUrl = '${ApiConfig.baseUrl1}$imageUrl';
+                                      if (!groupedImages.containsKey(imageType)) {
+                                        groupedImages[imageType] = [];
+                                      }
+                                      groupedImages[imageType]?.add(fullUrl);
+                                    }
+                                  }
+                                  final remarks = (imagesData.isNotEmpty && imagesData.first['remarks'] != null)
+                                      ? imagesData.first['remarks']
+                                      : '';
+
+                                  await generateReport(
+                                    context: context,
+                                    hostelName: attendanceData['hostel_name'] ?? '',
+                                    hostelId: attendanceData['hostel_id'] ?? '',
+                                    date: DateFormat('dd/MM/yyyy').format(DateTime.parse(attendanceData['attendance_date'])),
+                                    entranceUrls: groupedImages['Entrance'] ?? [],
+                                    kitchenUrls: groupedImages['Kitchen'] ?? [],
+                                    toiletUrls: groupedImages['Bathroom & Toilet'] ?? [],
+                                    roomUrls: groupedImages['Room'] ?? [],
+                                    remarks: remarks,
+                                    controller: screenController,
+                                    answers: answersData,
+                                  );
+                                }
+                              } finally {
+                                screenController.setGeneratingReport(false);
+                              }
+                            },
+                            icon: const Icon(Icons.picture_as_pdf, size: 16, color: Colors.white),
+                            label: Text(
+                              "Generate",
+                              style: GoogleFonts.poppins(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                              ),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.teal,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                              elevation: 3,
+                            ),
+                          );
+                        },
+
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+             Divider(color: AppColors.lightBlueGrey, height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _buildInfoItem(
+                  icon: Icons.calendar_today_outlined,
+                  label: 'Date of Visit',
+                  value: formattedDate,
+                ),
+                const SizedBox(height: 10),
+                // Officer Contact
+                _buildInfoItem(
+                  icon: Icons.phone_outlined,
+                  label: 'Officer Contact',
+                  value: visit.officerContact,
+                ),
+              ],
+            )
+
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoItem({
+    required IconData icon,
+    required String label,
+    required String value,
+  }) {
+    return Row(
+      children: [
+        Icon(icon, color: AppColors.blueGrey, size: 18),
+        const SizedBox(width: 6),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              label,
+              style: GoogleFonts.lato(
+                fontSize: 11,
+                color: AppColors.blueGrey,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            Text(
+              value,
+              style: GoogleFonts.lato(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: AppColors.blueGrey,
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
   Future<void> generateReport({
@@ -510,7 +553,7 @@ class _OfficerDetailScreenState extends State<OfficerDetailScreen> {
           ),
           child: pw.Center(
             child: pw.Text(
-              'Inspection Form',
+              'Survey Answers',
               style: pw.TextStyle(
                 fontSize: 14,
                 fontWeight: pw.FontWeight.bold,
@@ -727,4 +770,3 @@ class _OfficerDetailScreenState extends State<OfficerDetailScreen> {
     );
   }
 }
-

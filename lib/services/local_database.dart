@@ -19,6 +19,7 @@ class LocalDatabase extends ChangeNotifier{
   late String? userName = database.get('userName');
   late int? userID = database.get('userID');
   late int? attendanceID = database.get('attendanceID');
+  late int? role = database.get('role');
   late String? accessToken = database.get('accessToken');
   late String? deviceToken = database.get('deviceToken');
   late String? loginStatus = database.get('loginStatus');
@@ -31,6 +32,12 @@ class LocalDatabase extends ChangeNotifier{
   void setAttendanceID(int? attendID) {
     attendanceID = attendID;
     database.put('attendanceID', attendID ?? 0);
+    notifyListeners();
+  }
+
+  void setRole(int? roleID) {
+    role = roleID;
+    database.put('role', roleID ?? 0);
     notifyListeners();
   }
   void setUserName(String? name) {

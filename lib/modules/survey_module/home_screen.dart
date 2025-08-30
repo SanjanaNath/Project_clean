@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
+import 'package:project_clean/modules/survey_module/survey_form.dart';
 import 'package:provider/provider.dart';
 import '../../../utils/color_constants.dart';
 import '../../controllers/screens_controller.dart';
@@ -27,11 +28,18 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Future<void> _fetchQuestions() async {
+    return await context.read<ScreenController>().fetchQuestions(
+      context: context,
+    );
+  }
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       _fetchBlock();
+      _fetchQuestions();
     });
   }
   @override
@@ -47,13 +55,6 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.white),
-        // actions: [
-        //   IconButton(
-        //     icon: const Icon(Icons.logout, color: Colors.white),
-        //     tooltip: 'Logout',
-        //     onPressed: () => _logoutUser(context, screencontroller),
-        //   ),
-        // ],
       ),
       drawer: const SchoolDrawer(),
       body: Consumer<ScreenController>(
@@ -224,6 +225,29 @@ class _HomeScreenState extends State<HomeScreen> {
               if (controller.isAttendanceMarked) ...[
                 _photoCategoriesGrid(context, controller),
                 const SizedBox(height: 24),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => SurveyFormScreen(),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.description, color: Colors.white),
+                  label: const Text(
+                    'Survey Form',
+                    style: TextStyle(fontSize: 16, color: Colors.white),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primaryTeal, // A new color to differentiate
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                  ),
+                ),
+                const SizedBox(height: 24),
                 if (controller.allCategoriesHavePhotos) ...[
                   ElevatedButton.icon(
                     onPressed: () async {
@@ -271,11 +295,59 @@ class _HomeScreenState extends State<HomeScreen> {
                     _buildSubmitButton(context, controller),
                   ],
                 ],
-              ] else ...[
+              ]
+              else ...[
                 const SizedBox(height: 20),
               ],
+
+              // ElevatedButton.icon(
+              //   onPressed: () async {
+              //     final result = await showDialog<String>(
+              //       context: context,
+              //       builder: (context) => RemarksDialog(
+              //         initialRemarks: controller.remarkController.text,
+              //       ),
+              //     );
+              //     if (result != null) {
+              //       setState(() {
+              //         controller.remarkController.text = result;
+              //       });
+              //     }
+              //   },
+              //   icon: const Icon(Icons.edit_note, color: Colors.white),
+              //   label: const Text(
+              //     'Add Remarks',
+              //     style: TextStyle(fontSize: 16, color: Colors.white),
+              //   ),
+              //   style: ElevatedButton.styleFrom(
+              //     backgroundColor: AppColors.primaryTeal,
+              //     shape: RoundedRectangleBorder(
+              //       borderRadius: BorderRadius.circular(12),
+              //     ),
+              //     padding: const EdgeInsets.symmetric(vertical: 16),
+              //   ),
+              // ),
+              // const SizedBox(height: 24),
+              // if (controller.remarkController.text.isNotEmpty) ...[
+              //   Text(
+              //     'Remarks:',
+              //     style: GoogleFonts.lato(
+              //       fontSize: 16,
+              //       fontWeight: FontWeight.bold,
+              //       color: AppColors.deepBlue,
+              //     ),
+              //   ),
+              //   const SizedBox(height: 8),
+              //   Text(
+              //     controller.remarkController.text,
+              //     style: GoogleFonts.lato(fontSize: 14, color: AppColors.textDark),
+              //   ),
+              //   const SizedBox(height: 24),
+              //   _buildSubmitButton(context, controller),
+              // ],
             ],
           ],
+
         ),
       ),
     );
@@ -346,67 +418,68 @@ class _HomeScreenState extends State<HomeScreen> {
         final hasImage = images.isNotEmpty;
 
         return InkWell(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => CategoryGalleryScreen(
-                  category: category.name,
-                  images: images,
-                  onImagesUpdated: (imgs) => controller.updateImages(category.name, imgs),
-                ),
-              ),
-            );
-          },
+          // onTap: () {
+          //   Navigator.push(
+          //     context,
+          //     MaterialPageRoute(
+          //       builder: (_) => CategoryGalleryScreen(
+          //         category: category.name,
+          //         images: images,
+          //         onImagesUpdated: (imgs) => controller.updateImages(category.name, imgs),
+          //       ),
+          //     ),
+          //   );
+          // },
           //
 
-          // onTap: () async {  // Change to an async function
-          //   if (controller.selectedSite == null) {
-          //     controller.showSnackBar(context, "Please select a site first.", Colors.red);
-          //     return;
-          //   }
-          //
-          //   LocationPermission permission = await Geolocator.checkPermission();
-          //   if (permission == LocationPermission.denied) {
-          //     permission = await Geolocator.requestPermission();
-          //     if (permission == LocationPermission.denied) {
-          //       controller.showSnackBar(context, "Location permission is required to take photos.", Colors.red);
-          //       return;
-          //     }
-          //   }
-          //   if (permission == LocationPermission.deniedForever) {
-          //     controller.showSnackBar(context, "Enable location from settings to take photos.", Colors.red);
-          //     return;
-          //   }
-          //
-          //   Position position = await Geolocator.getCurrentPosition(
-          //       desiredAccuracy: LocationAccuracy.high);
-          //
-          //   double distance = Geolocator.distanceBetween(
-          //     position.latitude,
-          //     position.longitude,
-          //     controller.selectedSite!.lat,
-          //     controller.selectedSite!.lng,
-          //   );
-          //
-          //   if (distance <= 100) {
-          //     Navigator.push(
-          //       context,
-          //       MaterialPageRoute(
-          //         builder: (_) => CategoryGalleryScreen(
-          //           category: category.name,
-          //           images: images,
-          //           onImagesUpdated: (imgs) => controller.updateImages(category.name, imgs),
-          //         ),
-          //       ),
-          //     );
-          //   } else {
-          //     controller.showSnackBar(
-          //         context,
-          //         "You are too far from ${controller.selectedSiteName}.",
-          //         Colors.red);
-          //   }
-          // },
+          onTap: () async {
+            if (controller.selectedSite == null) {
+              controller.showSnackBar(context, "Please select a site first.", Colors.red);
+              return;
+            }
+
+            LocationPermission permission = await Geolocator.checkPermission();
+            if (permission == LocationPermission.denied) {
+              permission = await Geolocator.requestPermission();
+              if (permission == LocationPermission.denied) {
+                controller.showSnackBar(context, "Location permission is required to take photos.", Colors.red);
+                return;
+              }
+            }
+            if (permission == LocationPermission.deniedForever) {
+              controller.showSnackBar(context, "Enable location from settings to take photos.", Colors.red);
+              return;
+            }
+
+            Position position = await Geolocator.getCurrentPosition(
+                desiredAccuracy: LocationAccuracy.high);
+
+            double distance = Geolocator.distanceBetween(
+              position.latitude,
+              position.longitude,
+              controller.selectedSite!.lat,
+              controller.selectedSite!.lng,
+            );
+
+            if (distance <= 100) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => CategoryGalleryScreen(
+                    category: category.name,
+                    images: images,
+                    onImagesUpdated: (imgs) => controller.updateImages(category.name, imgs),
+                  ),
+                ),
+              );
+            } else {
+              controller.showSnackBar(
+                  context,
+                  "You are too far from ${controller.selectedSiteName}.",
+                  Colors.red);
+              controller.isLoading = false;
+            }
+          },
           child: Card(
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
@@ -457,7 +530,7 @@ class _HomeScreenState extends State<HomeScreen> {
         textStyle: GoogleFonts.lato(fontSize: 16, fontWeight: FontWeight.bold),
       ),
       icon: const Icon(Icons.cloud_upload, color: Colors.white,),
-      label: const Text("Submit Photos"),
+      label: const Text("Submit Photos & Form"),
       onPressed: () async {
         if (controller.capturedImages.isEmpty ||
             controller.capturedImages.values.every((list) => list.isEmpty)) {
@@ -466,6 +539,37 @@ class _HomeScreenState extends State<HomeScreen> {
           );
           return;
         }
+
+        // if (controller.answers.length != controller.questionList.length) {
+        // // if (controller.answers.length <=2) {
+        //   ScaffoldMessenger.of(context).showSnackBar(
+        //     const SnackBar(content: Text("Please fill out the entire survey form.")),
+        //   );
+        //   return;
+        // }
+
+        // Combine validation into a single check
+        bool formIsComplete = true;
+
+        // Check if every question has a non-empty answer
+        for (var question in controller.questionList) {
+          final answer = controller.answers[question.questionId];
+
+          // Check for null or empty string answers
+          if (answer == null || (answer is String && answer.trim().isEmpty)) {
+            formIsComplete = false;
+            break;
+          }
+        }
+
+        // If the form is incomplete, show a snackbar and stop
+        if (!formIsComplete) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Please fill out the entire survey form."), backgroundColor: Colors.red,),
+          );
+          return;
+        }
+        await controller.submitSurveyAnswers(context);
         await controller.submitPhotos(context,  controller.remarkController.text.trim());
       },
     );
@@ -492,5 +596,7 @@ class _HomeScreenState extends State<HomeScreen> {
       fillColor: Colors.white,
     );
   }
+
+
 
 }

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:project_clean/controllers/admin_dashboard_controller.dart';
 import 'package:project_clean/controllers/auth_controller.dart';
-import 'package:project_clean/modules/admin_panel/hoatel_detail/hostel_detail_screen.dart';
-import 'package:project_clean/modules/admin_panel/hoatel_detail/hostel_list_screen.dart';
 import 'package:project_clean/modules/survey_module/splash_screen.dart';
 import 'package:project_clean/services/local_database.dart';
 import 'package:provider/provider.dart';
@@ -11,6 +9,8 @@ import 'package:project_clean/modules/survey_module/login_screen.dart';
 import 'package:project_clean/utils/color_constants.dart';
 import 'controllers/screens_controller.dart';
 import 'modules/admin_panel/dashboard.dart';
+import 'modules/admin_panel/hostel_detail/hostel_detail_screen.dart';
+import 'modules/admin_panel/hostel_detail/hostel_list_screen.dart';
 import 'modules/admin_panel/officers_detail/officer_List_screen.dart';
 import 'modules/admin_panel/officers_detail/officer_detail_screen.dart';
 import 'modules/survey_module/home_screen.dart';
@@ -44,7 +44,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Project Clean',
+      title: 'Hostel Inspection',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.teal,
@@ -139,7 +139,6 @@ class MyApp extends StatelessWidget {
                 builder: (_) => HostelDetailScreen(hostelID: data?.hostelID ?? '', hostelName: data?.hostelName ?? '', hostelTotalVisits: data?.hostelTotalVisits ?? '',)
             );
           default:
-          // Handle unknown routes
             return MaterialPageRoute(builder: (_) => const Text('Error: Unknown Route'));
         }
       },

@@ -4,12 +4,11 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:provider/provider.dart';
-
 import '../../controllers/admin_dashboard_controller.dart';
 import '../../utils/color_constants.dart';
 import '../../widgets/custom_drawer.dart';
 import '../../widgets/custom_search_textField.dart';
-import '../../widgets/no_data_found.dart';
+import 'hostel_detail/hostel_detail_screen.dart';
 
 
 
@@ -53,7 +52,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<DashboardController>(context, listen: false).fetchHostelReportByDate(context: context, date: DateTime.now().toString(), month: "", from: "", to: "").then((_) {
+      Provider.of<DashboardController>(context, listen: false).fetchHostelReportByDate(context: context, date: DateFormat('yyyy-MM-dd').format(_selectedDate), month: "", from: "", to: "").then((_) {
         final controller = Provider.of<DashboardController>(context, listen: false);
         originalList = controller.hostelReportByDate;
         filteredList = originalList;
@@ -267,47 +266,47 @@ class _AdminDashboardState extends State<AdminDashboard> {
         ),
 
         // Report button
-        InkWell(
-          onTap: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Generating Report...')),
-            );
-          },
-          borderRadius: BorderRadius.circular(20),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              gradient:  LinearGradient(
-                colors: [AppColors.primaryTeal, AppColors.tealAccent],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.primaryTeal.withOpacity(0.4),
-                  blurRadius: 8,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.download_rounded, size: 18, color: Colors.white),
-                const SizedBox(width: 8),
-                Text(
-                  'Report',
-                  style: GoogleFonts.poppins(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.white,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        )
+        // InkWell(
+        //   onTap: () {
+        //     ScaffoldMessenger.of(context).showSnackBar(
+        //       const SnackBar(content: Text('Generating Report...')),
+        //     );
+        //   },
+        //   borderRadius: BorderRadius.circular(20),
+        //   child: Container(
+        //     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        //     decoration: BoxDecoration(
+        //       gradient:  LinearGradient(
+        //         colors: [AppColors.primaryTeal, AppColors.tealAccent],
+        //         begin: Alignment.topLeft,
+        //         end: Alignment.bottomRight,
+        //       ),
+        //       borderRadius: BorderRadius.circular(20),
+        //       boxShadow: [
+        //         BoxShadow(
+        //           color: AppColors.primaryTeal.withOpacity(0.4),
+        //           blurRadius: 8,
+        //           offset: const Offset(0, 4),
+        //         ),
+        //       ],
+        //     ),
+        //     child: Row(
+        //       mainAxisSize: MainAxisSize.min,
+        //       children: [
+        //         const Icon(Icons.download_rounded, size: 18, color: Colors.white),
+        //         const SizedBox(width: 8),
+        //         Text(
+        //           'Report',
+        //           style: GoogleFonts.poppins(
+        //             fontSize: 12,
+        //             fontWeight: FontWeight.w500,
+        //             color: Colors.white,
+        //           ),
+        //         ),
+        //       ],
+        //     ),
+        //   ),
+        // )
       ],
     );
   }
@@ -465,7 +464,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
   }
 
 // New methods for a cleaner structure
-  void _selectSingleDate(DashboardController controller) async {
+  void _selectSingleDate(DashboardController controller)
+  async {
     setState(() {
       _selectedCategory = null;
     });
@@ -537,7 +537,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
       setState(() {
         _startDate = pickedDateRange.start;
         _endDate = pickedDateRange.end;
-        _selectedDate = DateTime.now();
+        // _selectedDate = DateTime.now();
       });
       final formattedFromDate = DateFormat('yyyy-MM-dd').format(_startDate!);
       final formattedToDate = DateFormat('yyyy-MM-dd').format(_endDate!);
@@ -664,54 +664,59 @@ class _AdminDashboardState extends State<AdminDashboard> {
             child: SlideAnimation(
               horizontalOffset: 50,
               child: FadeInAnimation(
-                child: Card(
-                  elevation: 4,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  color: tileColor,
-                  margin: const EdgeInsets.symmetric(vertical: 8),
-                  child: ListTile(
-                    contentPadding: const EdgeInsets.all(10),
-                    leading: CircleAvatar(
-                      backgroundColor: primaryColor.withOpacity(0.2),
-                      child: const Icon(Icons.person, color: Colors.white),
+                child: InkWell(
+                  onTap: () {
+                    Navigator.pushNamed(context, '/hostelDetail', arguments: HostelDetailScreen(hostelID: report.hostelId.toString(), hostelName: report.hostelName, hostelTotalVisits: report.officersVisited));
+                  },
+                  child: Card(
+                    elevation: 4,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
                     ),
-                    title: Text(
-                      report.officerNames,
-                      style: GoogleFonts.poppins(
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.textDark,
+                    color: tileColor,
+                    margin: const EdgeInsets.symmetric(vertical: 8),
+                    child: ListTile(
+                      contentPadding: const EdgeInsets.all(10),
+                      leading: CircleAvatar(
+                        backgroundColor: primaryColor.withOpacity(0.2),
+                        child: const Icon(Icons.person, color: Colors.white),
                       ),
-                    ),
-                    subtitle: Text(
-                      report.hostelName,
-                      style: GoogleFonts.poppins(
-                        fontSize: 12,
-                        color: AppColors.textMedium,
+                      title: Text(
+                        report.officerNames,
+                        style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textDark,
+                        ),
                       ),
-                    ),
-                    trailing: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          'Total Surveys: ${report.officersVisited}',
-                          style: GoogleFonts.poppins(
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.textDark,
-                          ),
+                      subtitle: Text(
+                        report.hostelName,
+                        style: GoogleFonts.poppins(
+                          fontSize: 12,
+                          color: AppColors.textMedium,
                         ),
-                        if(formattedDate != '')
-                        Text(
-                          "Date: $formattedDate",
-                          style: GoogleFonts.poppins(
-                            fontSize: 12,
-                            fontStyle: FontStyle.italic,
-                            color: Colors.grey[600],
+                      ),
+                      trailing: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            'Total Surveys: ${report.officersVisited}',
+                            style: GoogleFonts.poppins(
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.textDark,
+                            ),
                           ),
-                        ),
-                      ],
+                          if(formattedDate != '')
+                          Text(
+                            "Date: $formattedDate",
+                            style: GoogleFonts.poppins(
+                              fontSize: 12,
+                              fontStyle: FontStyle.italic,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -750,16 +755,23 @@ class _AdminDashboardState extends State<AdminDashboard> {
                     child: InkWell(
                       onTap: () {
                         setState(() {
-                          // Toggle selection
-                          _selectedCategory = isSelected ? null : category['name'];
-                          if(index == 0){
-                            controller.fetchHostelReportByDate(context: context, date: '', month: formattedMonth, from: '', to: '');
-                          }else if(index == 1){
-                            controller.zeroLeastHostel(context: context, year: formattedYear, flag: 'least');
-                          }else if(index == 2){
-                            controller.zeroLeastHostel(context: context, year: formattedYear, flag: 'zero');
+                          // Check if a date range is selected. If so, clear it.
+                          if (_startDate != null) {
+                            _startDate = null;
+                            _endDate = null;
                           }
 
+                          _selectedCategory = isSelected ? null : category['name'];
+                          if (_selectedCategory == 'monthly surveys') {
+                            controller.fetchHostelReportByDate(context: context, date: '', month: formattedMonth, from: '', to: '');
+                          } else if (_selectedCategory == 'least surveys') {
+                            controller.zeroLeastHostel(context: context, year: formattedYear, flag: 'least');
+                          } else if (_selectedCategory == 'zero surveys') {
+                            controller.zeroLeastHostel(context: context, year: formattedYear, flag: 'zero');
+                          } else {
+                            final formattedDate = DateFormat('yyyy-MM-dd').format(_selectedDate);
+                            controller.fetchHostelReportByDate(context: context, date: formattedDate, month: '', from: '', to: '');
+                          }
                         });
                       },
                       child: Container(

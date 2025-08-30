@@ -53,6 +53,8 @@ class _SchoolDrawerState extends State<SchoolDrawer> {
 
                 // Clear the local database as well
                 LocalDatabase().setLoginStatus("LoggedOut");
+                LocalDatabase().setRole(0);
+
                 Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
 
               },
@@ -266,9 +268,8 @@ class _AdminDrawerState extends State<AdminDrawer> {
             ),
             TextButton(
               onPressed: () {
-                final screenController = Provider.of<ScreenController>(context, listen: false);
-
                 LocalDatabase().setLoginStatus("LoggedOut");
+                LocalDatabase().setRole(0);
                 Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
 
               },

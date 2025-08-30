@@ -41,19 +41,21 @@ class AuthController extends ChangeNotifier {
           toastLength: Toast.LENGTH_LONG,
         );
         LocalDatabase().setAccessToken(response['data']['token']);
+        LocalDatabase().setRole(response['data']['user']['role_id']);
         LocalDatabase().setUserName(response['data']['user']['name']);
         LocalDatabase().setUserID(response['data']['user']['user_id']);
         LocalDatabase().setLoginStatus("LoggedIn");
-        isLoading = false;
-        Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false,);
 
+        response['data']['user']['role_id'] == 2 ?
+        Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false,):
+        Navigator.pushNamedAndRemoveUntil(context, '/adminDashboard', (route) => false,);
       } else {
         Fluttertoast.showToast(
           msg: response['message'] ?? "Registration failed",
           backgroundColor: Colors.red,
           toastLength: Toast.LENGTH_LONG,
         );
-        isLoading = false;
+
 
       }
     } catch (e) {
@@ -62,7 +64,7 @@ class AuthController extends ChangeNotifier {
         backgroundColor: Colors.red,
         toastLength: Toast.LENGTH_LONG,
       );
-      isLoading = false;
+
 
     } finally {
       isLoading = false;
@@ -128,6 +130,63 @@ class AuthController extends ChangeNotifier {
         toastLength: Toast.LENGTH_LONG,
       );
       isLoading = false;
+
+    } finally {
+      isLoading = false;
+
+      notifyListeners();
+    }
+  }
+
+
+  ///Change Password API
+  Future<void> changePassword({
+    required BuildContext context,
+    required String newPassword,
+    required String mobile,
+
+  })
+  async {
+
+    FocusScope.of(context).unfocus();
+    isLoading = true;
+    notifyListeners();
+
+    var body = {
+      "identifier": mobile,
+      "newPassword": newPassword,
+    };
+
+    debugPrint('Sent Data is $body');
+
+    try {
+      final response = await ApiService().post(
+        ApiConfig.changePassword,
+        body,
+      );
+
+      if (response['success'] == true) {
+        Fluttertoast.showToast(
+          msg: response['message'],
+          backgroundColor: Colors.green,
+          toastLength: Toast.LENGTH_LONG,
+        );
+        Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false,);
+
+      } else {
+        Fluttertoast.showToast(
+          msg: response['message'] ?? "Registration failed",
+          backgroundColor: Colors.red,
+          toastLength: Toast.LENGTH_LONG,
+        );
+
+      }
+    } catch (e) {
+      Fluttertoast.showToast(
+        msg: "Error: $e",
+        backgroundColor: Colors.red,
+        toastLength: Toast.LENGTH_LONG,
+      );
 
     } finally {
       isLoading = false;

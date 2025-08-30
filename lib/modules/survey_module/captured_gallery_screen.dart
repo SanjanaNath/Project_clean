@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
-
+import 'package:image/image.dart' as img;
+import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
 class CategoryGalleryScreen extends StatefulWidget {
   final String category;
   final List<File> images;
@@ -29,73 +31,6 @@ class _CategoryGalleryScreenState extends State<CategoryGalleryScreen> {
     _images = List<File>.from(widget.images);
   }
 
-  // Future<void> _pickImage() async {
-  //   int maxImages = (widget.category == 'Entrance' || widget.category == 'Kitchen') ? 3 : 10;
-  //
-  //   if (_images.length >= maxImages) {
-  //     Fluttertoast.showToast(
-  //       msg: "You can only add up to $maxImages photos for ${widget.category}.",
-  //       toastLength: Toast.LENGTH_SHORT,
-  //       gravity: ToastGravity.BOTTOM,
-  //       backgroundColor: Colors.black54,
-  //       textColor: Colors.white,
-  //     );
-  //     return;
-  //   }
-  //
-  //   // Request camera permission
-  //   var status = await Permission.camera.request();
-  //
-  //   // Check the status
-  //   if (status.isDenied) {
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       const SnackBar(
-  //         content: Text("Camera permission is required to take photos."),
-  //         backgroundColor: Colors.red,
-  //       ),
-  //     );
-  //     // if (mounted) { // Check if the widget is still in the tree
-  //     //   ScaffoldMessenger.of(context).showSnackBar(
-  //     //     const SnackBar(
-  //     //       content: Text("Camera permission is required to take photos."),
-  //     //       backgroundColor: Colors.red,
-  //     //     ),
-  //     //   );
-  //     // }
-  //     return;
-  //   }
-  //
-  //   if (status.isPermanentlyDenied) {
-  //     // User has denied permission forever, guide them to app settings
-  //     if (mounted) {
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         SnackBar(
-  //           content: const Text("Camera permission is permanently denied. Please enable it from app settings."),
-  //           backgroundColor: Colors.red,
-  //           action: SnackBarAction(
-  //             label: 'Settings',
-  //             onPressed: () => openAppSettings(), // Opens the app settings page
-  //           ),
-  //         ),
-  //       );
-  //     }
-  //     return;
-  //   }
-  //
-  //
-  //   final picker = ImagePicker();
-  //   final pickedFile = await picker.pickImage(
-  //     source: ImageSource.camera,
-  //     imageQuality: 50,
-  //   );
-  //
-  //   if (pickedFile != null) {
-  //     setState(() {
-  //       _images.add(File(pickedFile.path));
-  //     });
-  //     widget.onImagesUpdated(_images);
-  //   }
-  // }
 
   Future<void> _pickImage() async {
     try {
@@ -133,7 +68,86 @@ class _CategoryGalleryScreenState extends State<CategoryGalleryScreen> {
       );
     }
   }
-
+  // Future<void> _pickImage() async {
+  //   try {
+  //     int maxImages = (widget.category == 'Entrance' || widget.category == 'Kitchen') ? 3 : 10;
+  //
+  //     if (_images.length >= maxImages) {
+  //       Fluttertoast.showToast(
+  //         msg: "You can only add up to $maxImages photos for ${widget.category}.",
+  //         toastLength: Toast.LENGTH_SHORT,
+  //         gravity: ToastGravity.BOTTOM,
+  //         backgroundColor: Colors.black54,
+  //         textColor: Colors.white,
+  //       );
+  //       return;
+  //     }
+  //
+  //     final picker = ImagePicker();
+  //     final pickedFile = await picker.pickImage(
+  //       source: ImageSource.camera,
+  //       imageQuality: 50,
+  //     );
+  //
+  //     if (pickedFile != null) {
+  //       img.Image? originalImage = img.decodeImage(await pickedFile.readAsBytes());
+  //
+  //       if (originalImage != null) {
+  //         final now = DateTime.now();
+  //         final formattedDate = DateFormat('dd-MM-yyyy HH:mm:ss').format(now);
+  //
+  //         final blackBackground = img.ColorRgb8(0, 0, 0);
+  //
+  //         // Define text and padding sizes
+  //         const padding = 5;
+  //         final textFont = img.arial14;
+  //         // Manually approximate the text size for the background rectangle
+  //         final textWidth = formattedDate.length * 8; // Approximation based on font size. Adjust as needed.
+  //         final textHeight = 14;
+  //         // Convert the x and y coordinates to integers
+  //         final x = 10;
+  //         final y = 10;
+  //
+  //         // Draw a semi-transparent black rectangle behind the text
+  //         img.fillRect(
+  //           originalImage,
+  //           x1: x - padding,
+  //           y1: y - padding,
+  //           x2: (x + textWidth + padding).toInt(), // Converted to int
+  //           y2: (y + textHeight + padding).toInt(), // Converted to int
+  //           color: blackBackground,
+  //         );
+  //
+  //         // Draw the text in white
+  //         img.drawString(
+  //           originalImage,
+  //           formattedDate,
+  //           font: textFont,
+  //           x: x,
+  //           y: y,
+  //           color: img.ColorRgb8(255, 255, 255),
+  //         );
+  //
+  //         // Save new image
+  //         final directory = await getTemporaryDirectory();
+  //         final newPath = '${directory.path}/${DateTime.now().millisecondsSinceEpoch}.jpg';
+  //         final modifiedImageFile = await File(newPath).writeAsBytes(img.encodeJpg(originalImage));
+  //
+  //         setState(() {
+  //           _images.add(modifiedImageFile);
+  //         });
+  //         widget.onImagesUpdated(_images);
+  //       }
+  //     }
+  //   } catch (e) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(
+  //         content: Text("An error occurred: $e"),
+  //         backgroundColor: Colors.red,
+  //       ),
+  //     );
+  //   }
+  // }
 
   void _deleteImage(int index) {
     setState(() {

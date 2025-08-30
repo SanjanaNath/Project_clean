@@ -175,52 +175,6 @@ class _ReportScreenState extends State<ReportScreen> {
                                   ),
                                   padding: const EdgeInsets.symmetric(vertical: 12),
                                 ),
-
-                                // onPressed: () async {
-                                //   final response = await controller.reportGenerate(
-                                //     context: context,
-                                //     attendanceID: survey.attendanceID,
-                                //   );
-                                //
-                                //   if (response != null && response['success'] == true) {
-                                //     final attendanceData = response['attendance'];
-                                //     final imagesData = response['images'] as List<dynamic>;
-                                //
-                                //     // Group images by type
-                                //     Map<String, List<String>> groupedImages = {};
-                                //     for (var image in imagesData) {
-                                //       final imageType = image['image_type'];
-                                //       final imageUrl = image['image_url'];
-                                //       if (imageUrl != null) {
-                                //         // You might need to prepend the base URL for the images
-                                //         final fullUrl = '${ApiConfig.baseUrl1}$imageUrl';
-                                //         if (!groupedImages.containsKey(imageType)) {
-                                //           groupedImages[imageType] = [];
-                                //         }
-                                //         groupedImages[imageType]?.add(fullUrl);
-                                //       }
-                                //     }
-                                //     final remarks = (imagesData.isNotEmpty && imagesData.first['remarks'] != null)
-                                //         ? imagesData.first['remarks']
-                                //         : '';
-                                //
-                                //     generateReport(
-                                //       context: context,
-                                //       hostelName: attendanceData['hostel_name'] ?? '',
-                                //       hostelId: attendanceData['hostel_id'] ?? '',
-                                //       date: DateFormat('dd/MM/yyyy').format(DateTime.parse(attendanceData['attendance_date'])),
-                                //       entranceUrls: groupedImages['Entrance'] ?? [],
-                                //       kitchenUrls: groupedImages['Kitchen'] ?? [],
-                                //       toiletUrls: groupedImages['Bathroom & Toilet'] ?? [],
-                                //       roomUrls: groupedImages['Room'] ?? [],
-                                //       remarks: remarks,
-                                //         controller: controller
-                                //     ).whenComplete(() {
-                                //       controller.isLoading =false;
-                                //
-                                //     },);
-                                //   }
-                                // },
                                 onPressed: controller.isGeneratingReport
                                     ? null // Disable the button while the report is generating
                                     : () async {
@@ -236,7 +190,7 @@ class _ReportScreenState extends State<ReportScreen> {
                                     if (response != null && response['success'] == true) {
                                       final attendanceData = response['attendance'];
                                       final imagesData = response['images'] as List<dynamic>;
-
+                                      final answersData = response['answers'] as List<dynamic>;
                                       Map<String, List<String>> groupedImages = {};
                                       for (var image in imagesData) {
                                         final imageType = image['image_type'];
@@ -253,7 +207,6 @@ class _ReportScreenState extends State<ReportScreen> {
                                           ? imagesData.first['remarks']
                                           : '';
 
-                                      // 2. The loader will remain visible during this entire function call.
                                       await generateReport(
                                         context: context,
                                         hostelName: attendanceData['hostel_name'] ?? '',
@@ -264,11 +217,11 @@ class _ReportScreenState extends State<ReportScreen> {
                                         toiletUrls: groupedImages['Bathroom & Toilet'] ?? [],
                                         roomUrls: groupedImages['Room'] ?? [],
                                         remarks: remarks,
-                                        controller: controller
+                                        controller: controller,
+                                        answers: answersData,
                                       );
                                     }
                                   } finally {
-                                    // 3. Hide the loader after everything is done, or an error occurred.
                                     controller.setGeneratingReport(false);
                                   }
                                 },
@@ -291,7 +244,141 @@ class _ReportScreenState extends State<ReportScreen> {
     );
   }
 
+
+  // Future<void> generateReport({
+  //   required List<dynamic> answers,
+  //   required BuildContext context,
+  //   required String hostelName,
+  //   required String hostelId,
+  //   required String date,
+  //   required List<String> entranceUrls,
+  //   required List<String> kitchenUrls,
+  //   required List<String> toiletUrls,
+  //   required List<String> roomUrls,
+  //   required String remarks,
+  //   required ScreenController controller,
+  // })
+  // async {
+  //   final fontData = await rootBundle.load("assets/fonts/NotoSansDevanagari-Regular.ttf");
+  //   final ttf = pw.Font.ttf(fontData);
+  //
+  //   final pdf = pw.Document();
+  //   controller.isLoading = true;
+  //
+  //   Future<List<pw.Image>> _getImagesFromUrls(List<String> urls) async {
+  //     List<pw.Image> images = [];
+  //     for (var url in urls) {
+  //       try {
+  //         final response = await http.get(Uri.parse(url));
+  //         if (response.statusCode == 200) {
+  //           images.add(pw.Image(pw.MemoryImage(response.bodyBytes)));
+  //         }
+  //       } catch (e) {
+  //         print("Error loading image from $url: $e");
+  //       }
+  //     }
+  //     return images;
+  //   }
+  //
+  //   final logoImage = await _loadLogoImage();
+  //
+  //   final entranceImages = await _getImagesFromUrls(entranceUrls);
+  //   final kitchenImages = await _getImagesFromUrls(kitchenUrls);
+  //   final toiletImages = await _getImagesFromUrls(toiletUrls);
+  //   final roomImages = await _getImagesFromUrls(roomUrls);
+  //
+  //   pdf.addPage(
+  //       pw.MultiPage(
+  //           pageTheme: pw.PageTheme(
+  //             pageFormat: PdfPageFormat.a4,
+  //             margin: const pw.EdgeInsets.all(24),
+  //             theme: pw.ThemeData.withFont(
+  //               base: ttf,
+  //               bold: ttf,
+  //             ),
+  //           ),
+  //
+  //       build: (pw.Context context) {
+  //     List<pw.Widget> content = [];
+  //
+  //     // Header Section
+  //     content.add(_buildHeader(hostelName, date, hostelId, logoImage));
+  //     content.add(pw.SizedBox(height: 20));
+  //
+  //     // Remarks Section
+  //     if (remarks.isNotEmpty) {
+  //       content.add(_buildRemarksSection(remarks));
+  //       content.add(pw.SizedBox(height: 20));
+  //     }
+  //
+  //     // Survey Answers Section
+  //     if (answers.isNotEmpty) {
+  //       content.add(pw.SizedBox(height: 12));
+  //       content.add(_buildAnswersSection(answers));
+  //       content.add(pw.SizedBox(height: 20));
+  //     }
+  //
+  //     // Photos Section Heading
+  //     content.add(_buildSectionHeading('Inspection Photos'));
+  //     content.add(pw.SizedBox(height: 20));
+  //
+  //     // Individual Photo Sections
+  //     void addPhotoSection(String title, List<pw.Image> images) {
+  //       if (images.isEmpty) return;
+  //       content.add(
+  //         pw.Text(
+  //           title,
+  //           style: pw.TextStyle(
+  //             fontSize: 14,
+  //             fontWeight: pw.FontWeight.bold,
+  //             color: PdfColors.grey700,
+  //           ),
+  //         ),
+  //       );
+  //       content.add(pw.SizedBox(height: 8));
+  //       content.add(
+  //         pw.GridView(
+  //           crossAxisCount: 3,
+  //           childAspectRatio: 1.0,
+  //           crossAxisSpacing: 15,
+  //           mainAxisSpacing: 15,
+  //           children: List.generate(
+  //             images.length,
+  //                 (index) => _buildImageWithLabel(
+  //               images[index],
+  //               '$title Photo ${index + 1}',
+  //             ),
+  //           ),
+  //         ),
+  //       );
+  //       content.add(pw.SizedBox(height: 20));
+  //     }
+  //
+  //     addPhotoSection('Entrance', entranceImages);
+  //     addPhotoSection('Kitchen', kitchenImages);
+  //     addPhotoSection('Toilet', toiletImages);
+  //     addPhotoSection('Room', roomImages);
+  //
+  //     return content;
+  //   },
+  //   ),
+  //   );
+  //
+  //   // Save file
+  //   final dir = (await getApplicationDocumentsDirectory()).path;
+  //   final sanitizedDate = date.replaceAll('/', '-');
+  //   final sanitizedHostelName = hostelName.replaceAll(RegExp(r'[^\w\s\.-]'), '');
+  //   final fileName = '$sanitizedHostelName-$sanitizedDate.pdf';
+  //   final file = File('$dir/$fileName');
+  //
+  //   await file.writeAsBytes(await pdf.save());
+  //   controller.isLoading = false;
+  //   OpenFilex.open(file.path);
+  // }
+  //
+  //
   Future<void> generateReport({
+    required List<dynamic> answers,
     required BuildContext context,
     required String hostelName,
     required String hostelId,
@@ -304,6 +391,9 @@ class _ReportScreenState extends State<ReportScreen> {
     required ScreenController controller,
   })
   async {
+    final fontData = await rootBundle.load("assets/fonts/NotoSansDevanagari-Regular.ttf");
+    final ttf = pw.Font.ttf(fontData);
+
     final pdf = pw.Document();
     controller.isLoading = true;
 
@@ -321,95 +411,164 @@ class _ReportScreenState extends State<ReportScreen> {
       }
       return images;
     }
+
     final logoImage = await _loadLogoImage();
-    // Fetch images
+
     final entranceImages = await _getImagesFromUrls(entranceUrls);
     final kitchenImages = await _getImagesFromUrls(kitchenUrls);
     final toiletImages = await _getImagesFromUrls(toiletUrls);
     final roomImages = await _getImagesFromUrls(roomUrls);
+
+    List<pw.Widget> _buildAnswersWidgets(List<dynamic> answers) {
+      if (answers.isEmpty) return [];
+
+      // Create the table header as a separate row
+      final headerRow = pw.Container(
+        decoration: const pw.BoxDecoration(color: PdfColors.teal),
+        padding: const pw.EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        child: pw.Row(
+          children: [
+            pw.Expanded(
+              flex: 3,
+              child: pw.Text('Question', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, color: PdfColors.white)),
+            ),
+            pw.Expanded(
+              flex: 2,
+              child: pw.Text('Answer', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, color: PdfColors.white)),
+            ),
+          ],
+        ),
+      );
+
+      // Map the answers to a list of individual rows
+      final answerRows = answers.map((answerData) {
+        return pw.Container(
+          decoration: const pw.BoxDecoration(
+            border: pw.Border(bottom: pw.BorderSide(color: PdfColors.grey200, width: 0.5)),
+          ),
+          padding: const pw.EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          child: pw.Row(
+            children: [
+              pw.Expanded(
+                flex: 3,
+                child: pw.Text(
+                  '${answerData['question_id']}. ${answerData['question_text']}',
+                  style: pw.TextStyle(color: PdfColors.grey800),
+                ),
+              ),
+              pw.Expanded(
+                flex: 2,
+                child: pw.Text(
+                  answerData['answer'],
+                  style: const pw.TextStyle(color: PdfColors.black),
+                ),
+              ),
+            ],
+          ),
+        );
+      }).toList();
+
+      // Combine the heading, header row, and answer rows into a single list
+      return [
+        _buildSectionHeading('Inspection Form'),
+        pw.SizedBox(height: 12),
+        pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          children: [
+            headerRow,
+            ...answerRows, // Use the spread operator to add all the rows
+          ],
+        ),
+        pw.SizedBox(height: 20),
+      ];
+    }
+
+    // Helper function to return a list of widgets for a photo section
+    List<pw.Widget> _buildPhotoSection(String title, List<pw.Image> images) {
+      if (images.isEmpty) return [];
+      return [
+        pw.Text(
+          title,
+          style: pw.TextStyle(
+            fontSize: 14,
+            fontWeight: pw.FontWeight.bold,
+            color: PdfColors.grey700,
+          ),
+        ),
+        pw.SizedBox(height: 8),
+        pw.GridView(
+          crossAxisCount: 3,
+          childAspectRatio: 1.0,
+          crossAxisSpacing: 15,
+          mainAxisSpacing: 15,
+          children: List.generate(
+            images.length,
+                (index) => _buildImageWithLabel(
+              images[index],
+              '$title Photo ${index + 1}',
+            ),
+          ),
+        ),
+        pw.SizedBox(height: 20),
+      ];
+    }
+
+
     pdf.addPage(
       pw.MultiPage(
         pageTheme: pw.PageTheme(
           pageFormat: PdfPageFormat.a4,
           margin: const pw.EdgeInsets.all(24),
           theme: pw.ThemeData.withFont(
-            base: pw.Font.helvetica(),
-            bold: pw.Font.helveticaBold(),
+            base: ttf,
+            bold: ttf,
           ),
         ),
-        footer: (context) => pw.Align(
-          alignment: pw.Alignment.centerRight,
-          child: pw.Text(
-            'Page ${context.pageNumber} of ${context.pagesCount}',
-            style: pw.TextStyle(fontSize: 10, color: PdfColors.grey),
-          ),
-        ),
+
+        // Add the footer here
+        footer: (pw.Context context) {
+          return pw.Container(
+            alignment: pw.Alignment.centerRight,
+            margin: const pw.EdgeInsets.only(top: 10),
+            child: pw.Text(
+              'Page ${context.pageNumber} of ${context.pagesCount}',
+              style: pw.TextStyle(
+                fontSize: 10,
+                color: PdfColors.grey600,
+              ),
+            ),
+          );
+        },
 
         build: (pw.Context context) {
+          final List<pw.Widget> content = [
+            _buildHeader(hostelName, date, hostelId, logoImage),
+            pw.SizedBox(height: 20),
+          ];
 
-          List<pw.Widget> content = [];
-          content.add(_buildHeader(hostelName, date, hostelId , logoImage));
-          content.add(pw.SizedBox(height: 20));
-          // Function to add section
-          void addSection(String title, List<pw.Image> images) {
-            if (images.isEmpty) return;
-            // content.add(_buildSectionTitle(title));
-            content.add(
-              pw.Container(
-                width: double.infinity,
-                padding: const pw.EdgeInsets.all(8),
-                decoration: pw.BoxDecoration(
-                  color: PdfColors.teal50,
-                  borderRadius: pw.BorderRadius.circular(4),
-                ),
-                child: pw.Center(
-                  child:  pw.Text(
-                    title,
-                    style: pw.TextStyle(
-                      fontSize: 14,
-                      fontWeight: pw.FontWeight.bold,
-                      color: PdfColors.teal,
-                    ),
-                  ),
-                )
-              ),
-            );
-
-            content.add(pw.SizedBox(height: 12));
-            content.add(
-              pw.GridView(
-                crossAxisCount: 3,
-                childAspectRatio: 1.0,
-                crossAxisSpacing: 15,
-                mainAxisSpacing: 15,
-                children: List.generate(
-                  images.length,
-                      (index) => _buildImageWithLabel(
-                    images[index],
-                    '$title Photo ${index + 1}',
-                  ),
-                ),
-              ),
-            );
-            content.add(pw.SizedBox(height: 20));
-          }
           if (remarks.isNotEmpty) {
             content.add(_buildRemarksSection(remarks));
+            content.add(pw.SizedBox(height: 20));
           }
 
-          content.add(pw.SizedBox(height: 20));
-          // Add all sections continuously
-          addSection('Entrance', entranceImages);
-          addSection('Kitchen', kitchenImages);
-          addSection('Toilet', toiletImages);
-          addSection('Room', roomImages);
+          // Add the answers as a list of widgets using the helper function
+          content.addAll(_buildAnswersWidgets(answers));
 
-          // Remarks at the end
+          // Add the heading for all photo sections
+          content.add(_buildSectionHeading('Inspection Photos'));
+          content.add(pw.SizedBox(height: 20));
+
+          // Add each photo section using the helper function
+          content.addAll(_buildPhotoSection('Entrance', entranceImages));
+          content.addAll(_buildPhotoSection('Kitchen', kitchenImages));
+          content.addAll(_buildPhotoSection('Toilet', toiletImages));
+          content.addAll(_buildPhotoSection('Room', roomImages));
 
           return content;
         },
       ),
     );
+
 
     // Save file
     final dir = (await getApplicationDocumentsDirectory()).path;
@@ -423,6 +582,83 @@ class _ReportScreenState extends State<ReportScreen> {
     OpenFilex.open(file.path);
   }
 
+  pw.Widget _buildSectionHeading(String title, {PdfColor? color}) {
+    return pw.Container(
+      width: double.infinity,
+      padding: const pw.EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: pw.BoxDecoration(
+        color: color ?? PdfColors.teal50,
+        borderRadius: pw.BorderRadius.circular(4),
+        border: pw.Border.all(color: color ?? PdfColors.teal, width: 0.5),
+      ),
+      child: pw.Text(
+        title,
+        textAlign: pw.TextAlign.center,
+        style: pw.TextStyle(
+          fontSize: 16,
+          fontWeight: pw.FontWeight.bold,
+          color: color != null ? PdfColors.white : PdfColors.teal800,
+        ),
+      ),
+    );
+  }
+
+  pw.Widget _buildAnswersSection(List<dynamic> answers) {
+    return pw.Column(
+      crossAxisAlignment: pw.CrossAxisAlignment.start,
+      children: [
+        // Section header
+        pw.Container(
+          width: double.infinity,
+          padding: const pw.EdgeInsets.all(8),
+          decoration: pw.BoxDecoration(
+            color: PdfColors.teal50,
+            borderRadius: pw.BorderRadius.circular(4),
+            border: pw.Border.all(color: PdfColors.teal, width: 0.5),
+          ),
+          child: pw.Center(
+            child: pw.Text(
+              'Survey Answers',
+              style: pw.TextStyle(
+                fontSize: 14,
+                fontWeight: pw.FontWeight.bold,
+                color: PdfColors.teal800,
+              ),
+            ),
+          ),
+        ),
+        pw.SizedBox(height: 12),
+
+        // Table to display questions and answers
+        pw.Table.fromTextArray(
+          headers: ['Question', 'Answer'],
+          border: pw.TableBorder.all(color: PdfColors.grey300, width: 0.5),
+          headerStyle: pw.TextStyle(
+            fontWeight: pw.FontWeight.bold,
+            color: PdfColors.white,
+          ),
+          headerDecoration: const pw.BoxDecoration(
+            color: PdfColors.teal, // Darker header color for contrast
+          ),
+          rowDecoration: const pw.BoxDecoration(
+            border: pw.Border(bottom: pw.BorderSide(color: PdfColors.grey200)),
+          ),
+          cellAlignment: pw.Alignment.centerLeft,
+          cellPadding: const pw.EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          columnWidths: {
+            0: const pw.FlexColumnWidth(3), // Question column is wider
+            1: const pw.FlexColumnWidth(2), // Answer column
+          },
+          data: answers.map((answerData) {
+            return [
+              '${answerData['question_id']}. ${answerData['question_text']}',
+              answerData['answer'],
+            ];
+          }).toList(),
+        ),
+      ],
+    );
+  }
 
   pw.Widget _buildHeader(String hostelName, String date, String hostelId, pw.ImageProvider logoImage) {
     return pw.Container(
@@ -476,14 +712,12 @@ class _ReportScreenState extends State<ReportScreen> {
     );
   }
 
-// A new helper function for the logo
   Future<pw.ImageProvider> _loadLogoImage() async {
 
     final ByteData image = await rootBundle.load('assets/images/cg.png');
     return pw.MemoryImage(image.buffer.asUint8List());
   }
 
-// Revised _buildLogo function
   pw.Widget _buildLogo(pw.ImageProvider logoImage) {
     return pw.Container(
       height: 80,
@@ -493,9 +727,6 @@ class _ReportScreenState extends State<ReportScreen> {
       child: pw.Image(logoImage),
     );
   }
-
-
-// Simplified Info Chip
   pw.Widget _buildInfoChip(String label, String value) {
     return pw.RichText(
       text: pw.TextSpan(
@@ -515,26 +746,6 @@ class _ReportScreenState extends State<ReportScreen> {
               color: PdfColors.grey700,
             ),
           ),
-        ],
-      ),
-    );
-  }
-// --- Helper Functions ---
-  pw.Widget _buildSectionTitle(String title) {
-    return pw.Container(
-      margin: const pw.EdgeInsets.symmetric(horizontal: 15),
-      child: pw.Column(
-        crossAxisAlignment: pw.CrossAxisAlignment.center,
-        children: [
-          pw.Text(
-            title,
-            style: pw.TextStyle(
-              fontSize: 18,
-              fontWeight: pw.FontWeight.bold,
-              color: PdfColors.teal,
-            ),
-          ),
-          pw.Divider(color: PdfColors.teal, thickness: 1),
         ],
       ),
     );

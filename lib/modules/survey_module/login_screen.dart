@@ -132,7 +132,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         TextButton(
                           onPressed: () {
                             Navigator.pushNamed(context, '/register');
-
                           },
                           child: Text(
                             "Change Password",

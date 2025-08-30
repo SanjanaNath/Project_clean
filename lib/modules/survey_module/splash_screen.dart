@@ -32,7 +32,13 @@ class SplashScreenState extends State<SplashScreen>
     if (localDatabase.loginStatus == "LoggedIn") {
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false,);
+        if(localDatabase.role == 2){
+          Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false,);
+
+        }if(localDatabase.role == 1){
+          Navigator.pushNamedAndRemoveUntil(context, '/adminDashboard', (route) => false,);
+
+        }
       });
     } else {
       // _timers.add(Timer(const Duration(seconds: 4), () {
@@ -81,7 +87,7 @@ class SplashScreenState extends State<SplashScreen>
                   height: size.height * 0.2,
                 ),
                  Text(
-                   'Project Clean',
+                   'Hostel Inspection',
                  style: GoogleFonts.lato( fontSize: 17,
                    wordSpacing: 2,
                    fontWeight: FontWeight.w600,),

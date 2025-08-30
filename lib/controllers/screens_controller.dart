@@ -27,6 +27,7 @@ class ScreenController extends ChangeNotifier {
     PhotoCategory(name: 'Room', icon: Icons.hotel_rounded),
   ];
   final List<BlockList> blocks = [];
+  final List<QuestionList> questionList = [];
   final List<SurveyHistoryList> surveyHistoryList = [];
   final Map<String, List<File>> capturedImages = {};
 
@@ -40,6 +41,19 @@ class ScreenController extends ChangeNotifier {
     selectedSiteName = null;
     selectedSite = null;
     isAttendanceMarked = false;
+    notifyListeners();
+  }
+
+  final Map<String, dynamic> answers = {};
+
+  void setAnswer(String questionId, dynamic value) {
+    answers[questionId] = value;
+    notifyListeners();
+  }
+
+  // You might also want a method to clear the answers
+  void clearAnswers() {
+    answers.clear();
     notifyListeners();
   }
 
@@ -71,30 +85,31 @@ class ScreenController extends ChangeNotifier {
       selectedSite!.lng,
     );
 
-    // if (distance <= 100) {
-    //   hostelAttendance(context: context, hostelID: hostelID, hostelName: hostelName).whenComplete(() {
-    //     isLoading = false;
-    //     isAttendanceMarked = true;
-    //   },);
-    //   if (isAttendanceMarked) {
-    //     _showSnackBar(context, "Attendance marked!", Colors.green);
-    //   }
-    // } else {
-    //
-    //   _showSnackBar(
-    //       context,
-    //       "You are too far from $selectedSiteName)",
-    //       Colors.red);
-    //   // _showSnackBar(
-    //   //     context,
-    //   //     "You are too far from $selectedSiteName (Distance: ${distance.toStringAsFixed(2)} m)",
-    //   //     Colors.red);
-    // }
+    if (distance <= 100) {
+      hostelAttendance(context: context, hostelID: hostelID_id.toString(), hostelName: hostelName).whenComplete(() {
+        isLoading = false;
+        isAttendanceMarked = true;
+      },);
+      if (isAttendanceMarked) {
+        _showSnackBar(context, "Attendance marked!", Colors.green);
+      }
+    } else {
 
-   await  hostelAttendance(context: context, hostelID: hostelID_id.toString(), hostelName: hostelName).whenComplete(() {
+      _showSnackBar(
+          context,
+          "You are too far from $selectedSiteName)",
+          Colors.red);
       isLoading = false;
-      isAttendanceMarked = true;
-    },);
+      // _showSnackBar(
+      //     context,
+      //     "You are too far from $selectedSiteName (Distance: ${distance.toStringAsFixed(2)} m)",
+      //     Colors.red);
+    }
+
+   // await  hostelAttendance(context: context, hostelID: hostelID_id.toString(), hostelName: hostelName).whenComplete(() {
+   //    isLoading = false;
+   //    isAttendanceMarked = true;
+   //  },);
     notifyListeners();
   }
 
@@ -309,13 +324,14 @@ class ScreenController extends ChangeNotifier {
           selectedSite!.lng,
         );
 
-        // if (distance > 100) {
-        //   _showSnackBar(
-        //       context,
-        //       "You are too far from $selectedSiteName. Can't submit photos.",
-        //       Colors.red);
-        //   return;
-        // }
+        if (distance > 100) {
+          _showSnackBar(
+              context,
+              "You are too far from $selectedSiteName. Can't submit.",
+              Colors.red);
+          isLoading = false;
+          return;
+        }
 
         var body = {
         "attendance_id": localDatabase.attendanceID,
@@ -366,7 +382,7 @@ class ScreenController extends ChangeNotifier {
           isLoading = false;
           notifyListeners();
           Fluttertoast.showToast(
-            msg: "Photos submitted successfully!",
+            msg: "Inspection Completed successfully!",
             backgroundColor: Colors.green,
             toastLength: Toast.LENGTH_LONG,
           );
@@ -481,9 +497,104 @@ async {
   }
 }
 
+/// Question List API
+  Future<void> fetchQuestions({
+    required BuildContext context,
+  })
+  async {
+    isLoading = true;
+    notifyListeners();
+
+    try {
+      final response = await ApiService().get(ApiConfig.getQuestions);
+
+      if (response['success'] == true) {
+        final List dataList = response['data'];
+        questionList.addAll(
+          dataList.map((e) => QuestionList.fromJson(e)).toList(),
+        );
+
+      } else {
+        Fluttertoast.showToast(
+          msg: response['message'] ?? "Failed to fetch Data",
+          backgroundColor: Colors.red,
+          toastLength: Toast.LENGTH_LONG,
+        );
+      }
+    } catch (e) {
+      Fluttertoast.showToast(
+        msg: "Error: $e",
+        backgroundColor: Colors.red,
+        toastLength: Toast.LENGTH_LONG,
+      );
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> submitSurveyAnswers(BuildContext context) async {
+    isLoading = true;
+    notifyListeners();
+
+    try {
+      // Convert the 'answers' map to the required list format
+      final List<Map<String, dynamic>> answerList = [];
+      answers.forEach((questionId, answer) {
+        answerList.add({
+          "question_id": int.parse(questionId),
+          "answer": answer,
+        });
+      });
+
+      final Map<String, dynamic> body = {
+        "attendance_id": localDatabase.attendanceID.toString(),
+        "answers": answerList,
+      };
+
+      final response = await ApiService().post(ApiConfig.submitAnswer, body);
+
+      if (response['success'] == true) {
+        clearAnswers();
+      } else {
+        showSnackBar(context, response['message'] ?? "Failed to submit survey answers.", Colors.red);
+      }
+
+    } catch (e) {
+      showSnackBar(context, "An error occurred: $e", Colors.red);
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
 
 
+}
 
+
+class QuestionList {
+  final String questionId;
+  final String questionText;
+  final String answerType;
+  final List<String>? options; // Now correctly defined as a nullable List
+
+  QuestionList({
+    required this.questionId,
+    required this.questionText,
+    required this.answerType,
+    this.options, // This can now be null
+  });
+
+  factory QuestionList.fromJson(Map<String, dynamic> json) {
+    return QuestionList(
+      questionId: json['question_id']?.toString() ?? '',
+      questionText: json['question_text'] ?? '',
+      answerType: json['answer_type'] ?? '',
+      options: json['options'] != null
+          ? List<String>.from(json['options'].map((x) => x.toString())) // Correctly handles the list of strings
+          : null,
+    );
+  }
 }
 
 class BlockList {
@@ -493,8 +604,6 @@ class BlockList {
 
   BlockList({required this.blockName, required this.blockCode,});
 }
-
-
 class SurveyHistoryList {
   final String userID;
   final int attendanceID;

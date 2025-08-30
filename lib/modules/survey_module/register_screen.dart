@@ -17,15 +17,12 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
-  bool _obscureNewPassword = true;
+
   bool _obscureNewRePassword = true;
 
-  final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _oldPasswordController = TextEditingController();
+  final _newPasswordController = TextEditingController();
   final _rePasswordController = TextEditingController();
-  final _emailController = TextEditingController();
 
   bool _isValidEmail(String email) {
     return RegExp(
@@ -100,15 +97,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             const SizedBox(height: 48),
 
                             // Full Name Input
-                            TextFormField(
-                              controller: _nameController,
-                              decoration: const InputDecoration(
-                                labelText: 'Full Name',
-                                hintText: 'Enter your Name',
-                                prefixIcon: Icon(Icons.person_rounded),
-                              ),
-                            ),
-                            const SizedBox(height: 16),
+                            // TextFormField(
+                            //   controller: _nameController,
+                            //   decoration: const InputDecoration(
+                            //     labelText: 'Full Name',
+                            //     hintText: 'Enter your Name',
+                            //     prefixIcon: Icon(Icons.person_rounded),
+                            //   ),
+                            // ),
+                            // const SizedBox(height: 16),
 
                             // // ID Input
                             // TextFormField(
@@ -134,20 +131,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ),
                             const SizedBox(height: 16),
 
-                            // Password Input (no eye icon)
-                            TextFormField(
-                              controller: _passwordController,
-                              decoration: const InputDecoration(
-                                labelText: 'Old Password',
-                                hintText: 'Create a password',
-                                prefixIcon: Icon(Icons.lock_rounded),
-                              ),
-                              obscureText: false,
-                            ),
-                            const SizedBox(height: 16),
+                            // // Password Input (no eye icon)
+                            // TextFormField(
+                            //   controller: _passwordController,
+                            //   decoration: const InputDecoration(
+                            //     labelText: 'Old Password',
+                            //     hintText: 'Create a password',
+                            //     prefixIcon: Icon(Icons.lock_rounded),
+                            //   ),
+                            //   obscureText: false,
+                            // ),
+                            // const SizedBox(height: 16),
 
                             TextFormField(
-                              controller: _oldPasswordController,
+                              controller: _newPasswordController,
                               decoration: InputDecoration(
                                 labelText: 'New Password',
                                 hintText: 'Enter password again',
@@ -196,57 +193,88 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                             // Register Button
                           ElevatedButton(
+                            // onPressed: () {
+                            //   String name = _nameController.text.trim();
+                            //   String phone = _phoneController.text.trim();
+                            //   String password = _passwordController.text.trim();
+                            //   String rePassword = _rePasswordController.text.trim();
+                            //   String email = _emailController.text.trim();
+                            //
+                            //   // Validation
+                            //   if (name.isEmpty || phone.isEmpty || password.isEmpty || rePassword.isEmpty || email.isEmpty) {
+                            //     Fluttertoast.showToast(
+                            //       msg: "All fields are required",
+                            //       backgroundColor: Colors.red,
+                            //     );
+                            //     return;
+                            //   }
+                            //   if (!_isValidEmail(email)) {
+                            //     Fluttertoast.showToast(
+                            //       msg: "Enter a valid email address",
+                            //       backgroundColor: Colors.red,
+                            //     );
+                            //     return;
+                            //   }
+                            //   if (phone.length != 10) {
+                            //     Fluttertoast.showToast(
+                            //       msg: "Phone number must be 10 digits",
+                            //       backgroundColor: Colors.red,
+                            //     );
+                            //     return;
+                            //   }
+                            //   if (password.length < 4) {
+                            //     Fluttertoast.showToast(
+                            //       msg: "Password must be at least 4 characters",
+                            //       backgroundColor: Colors.red,
+                            //     );
+                            //     return;
+                            //   }
+                            //   if (password != rePassword) {
+                            //     Fluttertoast.showToast(
+                            //       msg: "Passwords do not match",
+                            //       backgroundColor: Colors.red,
+                            //     );
+                            //     return;
+                            //   }
+                            //
+                            //   // controller.register(
+                            //   //   context: context,
+                            //   //   name: name,
+                            //   //   password: password,
+                            //   //   mobile: phone,
+                            //   //   email: email,
+                            //   // );
+                            // },
                             onPressed: () {
-                              String name = _nameController.text.trim();
-                              String phone = _phoneController.text.trim();
-                              String password = _passwordController.text.trim();
-                              String rePassword = _rePasswordController.text.trim();
-                              String email = _emailController.text.trim();
-
-                              // Validation
-                              if (name.isEmpty || phone.isEmpty || password.isEmpty || rePassword.isEmpty || email.isEmpty) {
-                                Fluttertoast.showToast(
-                                  msg: "All fields are required",
-                                  backgroundColor: Colors.red,
+                                String mobile = _phoneController.text.trim();
+                                String newPassword = _newPasswordController.text.trim();
+                                String rePassword = _rePasswordController.text.trim();
+                                  if (mobile.isEmpty  || newPassword.isEmpty || rePassword.isEmpty) {
+                                    Fluttertoast.showToast(
+                                      msg: "All fields are required",
+                                      backgroundColor: Colors.red,
+                                    );
+                                    return;
+                                  }
+                                if (newPassword.length < 4) {
+                                  Fluttertoast.showToast(
+                                    msg: "Password must be at least 4 characters",
+                                    backgroundColor: Colors.red,
+                                  );
+                                  return;
+                                }
+                                if (newPassword != rePassword) {
+                                  Fluttertoast.showToast(
+                                    msg: "Passwords do not match",
+                                    backgroundColor: Colors.red,
+                                  );
+                                  return;
+                                }
+                              controller.changePassword(
+                                  context: context,
+                                mobile: mobile,
+                                newPassword: newPassword
                                 );
-                                return;
-                              }
-                              if (!_isValidEmail(email)) {
-                                Fluttertoast.showToast(
-                                  msg: "Enter a valid email address",
-                                  backgroundColor: Colors.red,
-                                );
-                                return;
-                              }
-                              if (phone.length != 10) {
-                                Fluttertoast.showToast(
-                                  msg: "Phone number must be 10 digits",
-                                  backgroundColor: Colors.red,
-                                );
-                                return;
-                              }
-                              if (password.length < 4) {
-                                Fluttertoast.showToast(
-                                  msg: "Password must be at least 4 characters",
-                                  backgroundColor: Colors.red,
-                                );
-                                return;
-                              }
-                              if (password != rePassword) {
-                                Fluttertoast.showToast(
-                                  msg: "Passwords do not match",
-                                  backgroundColor: Colors.red,
-                                );
-                                return;
-                              }
-
-                              // controller.register(
-                              //   context: context,
-                              //   name: name,
-                              //   password: password,
-                              //   mobile: phone,
-                              //   email: email,
-                              // );
                             },
                             child: const Text('Update Password'),
                           ),

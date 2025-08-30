@@ -2,13 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
-import 'package:project_clean/modules/admin_panel/hoatel_detail/hostel_detail_screen.dart';
 import 'package:provider/provider.dart';
-
 import '../../../controllers/admin_dashboard_controller.dart';
 import '../../../utils/color_constants.dart';
 import '../../../widgets/custom_search_textField.dart';
 import '../../../widgets/no_data_found.dart';
+import 'hostel_detail_screen.dart';
 
 class HostelListScreen extends StatefulWidget {
   const HostelListScreen({super.key});

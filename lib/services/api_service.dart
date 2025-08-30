@@ -62,42 +62,6 @@ class ApiService {
     }
   }
 
-
-  // /// Image Upload method
-  // Future<void> uploadImages(
-  //     String url,
-  //     {
-  //       Map<String, dynamic>? extraData,
-  //       Map<String, List<File>>? multipleImages,
-  //     }) async {
-  //   var request = http.MultipartRequest('POST', Uri.parse(url));
-  //
-  //   // Add form fields as strings
-  //   if (extraData != null) {
-  //     request.fields.addAll(
-  //       extraData.map((key, value) => MapEntry(key, value.toString())),
-  //     );
-  //   }
-  //
-  //   // Add all images
-  //   if (multipleImages != null) {
-  //     for (var entry in multipleImages.entries) {
-  //       for (var file in entry.value) {
-  //         request.files.add(
-  //           await http.MultipartFile.fromPath(entry.key, file.path),
-  //         );
-  //       }
-  //     }
-  //   }
-  //
-  //   var response = await request.send();
-  //   if (response.statusCode != 200) {
-  //     throw Exception('Failed to upload images');
-  //   }
-  // }
-
-
-
   /// Image Upload method
   Future<Map<String, dynamic>> uploadImages(
       String url, {
@@ -163,6 +127,7 @@ class ApiService {
           throw Exception(
               '${e.response?.data['message'] ?? 'Invalid input'}');
         case 401:
+          LocalDatabase().setLoginStatus("LoggedOut");
           throw Exception('Unauthorized: Please check your credentials');
         case 403:
           throw Exception('Forbidden: You do not have permission');

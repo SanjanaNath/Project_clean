@@ -11,7 +11,7 @@
 
 
     <application
-        android:label="project_clean"
+        android:label="Hostel Inspection"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
