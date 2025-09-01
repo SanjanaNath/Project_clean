@@ -1,18 +1,19 @@
 class ApiConfig {
   ///Local Database Configurations..
   static const String databaseName = 'database';
-  // static const apiVersion = "api/v1/"; //local
-  static const apiVersion = "api/v3/"; //live
-  static const ip = "10.65.217.13";
+
 
   /// Host Url
-  // static const baseUrl = "http://$ip:5000/$apiVersion/"; //local
-  // static const baseUrl1 = "http://$ip:5000"; //local
+  static const ip = "10.20.198.230";
+  static const apiVersion = "api/v1/";
+  static const baseUrl = "http://$ip:5000/$apiVersion/"; //local
+  static const baseUrl1 = "http://$ip:5000"; //local
 
 
   /// Live Server
-static const baseUrl = "https://vsk.cg.gov.in/cp/$apiVersion";//production
-static const baseUrl1 = "https://vsk.cg.gov.in/cp";//production
+  // static const apiVersion = "api/v3/";
+// static const baseUrl = "https://vsk.cg.gov.in/cp/$apiVersion";//production
+// static const baseUrl1 = "https://vsk.cg.gov.in/cp";//production
 
   ///Apis
   static const login = "auth/login";

@@ -325,7 +325,7 @@ class _OfficerDetailScreenState extends State<OfficerDetailScreen> {
               child: pw.Text('Question', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, color: PdfColors.white)),
             ),
             pw.Expanded(
-              flex: 2,
+              // flex: 3,
               child: pw.Text('Answer', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, color: PdfColors.white)),
             ),
           ],
@@ -348,8 +348,9 @@ class _OfficerDetailScreenState extends State<OfficerDetailScreen> {
                   style: pw.TextStyle(color: PdfColors.grey800),
                 ),
               ),
+
               pw.Expanded(
-                flex: 2,
+                // flex: 2,
                 child: pw.Text(
                   answerData['answer'],
                   style: const pw.TextStyle(color: PdfColors.black),
@@ -359,8 +360,6 @@ class _OfficerDetailScreenState extends State<OfficerDetailScreen> {
           ),
         );
       }).toList();
-
-      // Combine the heading, header row, and answer rows into a single list
       return [
         _buildSectionHeading('Inspection Form'),
         pw.SizedBox(height: 12),
@@ -495,63 +494,6 @@ class _OfficerDetailScreenState extends State<OfficerDetailScreen> {
     );
   }
 
-  pw.Widget _buildAnswersSection(List<dynamic> answers) {
-    return pw.Column(
-      crossAxisAlignment: pw.CrossAxisAlignment.start,
-      children: [
-        // Section header
-        pw.Container(
-          width: double.infinity,
-          padding: const pw.EdgeInsets.all(8),
-          decoration: pw.BoxDecoration(
-            color: PdfColors.teal50,
-            borderRadius: pw.BorderRadius.circular(4),
-            border: pw.Border.all(color: PdfColors.teal, width: 0.5),
-          ),
-          child: pw.Center(
-            child: pw.Text(
-              'Inspection Form',
-              style: pw.TextStyle(
-                fontSize: 14,
-                fontWeight: pw.FontWeight.bold,
-                color: PdfColors.teal800,
-              ),
-            ),
-          ),
-        ),
-        pw.SizedBox(height: 12),
-
-        // Table to display questions and answers
-        pw.Table.fromTextArray(
-          headers: ['Question', 'Answer'],
-          border: pw.TableBorder.all(color: PdfColors.grey300, width: 0.5),
-          headerStyle: pw.TextStyle(
-            fontWeight: pw.FontWeight.bold,
-            color: PdfColors.white,
-          ),
-          headerDecoration: const pw.BoxDecoration(
-            color: PdfColors.teal, // Darker header color for contrast
-          ),
-          rowDecoration: const pw.BoxDecoration(
-            border: pw.Border(bottom: pw.BorderSide(color: PdfColors.grey200)),
-          ),
-          cellAlignment: pw.Alignment.centerLeft,
-          cellPadding: const pw.EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-          columnWidths: {
-            0: const pw.FlexColumnWidth(3), // Question column is wider
-            1: const pw.FlexColumnWidth(2), // Answer column
-          },
-          data: answers.map((answerData) {
-            return [
-              '${answerData['question_id']}. ${answerData['question_text']}',
-              answerData['answer'],
-            ];
-          }).toList(),
-        ),
-      ],
-    );
-  }
-
   pw.Widget _buildHeader(String hostelName, String date, String hostelId, pw.ImageProvider logoImage) {
     return pw.Container(
       padding: const pw.EdgeInsets.symmetric(horizontal: 25, vertical: 20),
@@ -559,32 +501,39 @@ class _OfficerDetailScreenState extends State<OfficerDetailScreen> {
         borderRadius: pw.BorderRadius.circular(4),
         border: pw.Border.all(color: PdfColors.teal, width: 1),),
       child: pw.Column(
-        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        crossAxisAlignment: pw.CrossAxisAlignment.center, // Center the entire column
         children: [
 
           pw.Row(
-              mainAxisAlignment: pw.MainAxisAlignment.center,
-              children: [  _buildLogo(logoImage),]),
-          pw.Row(
             mainAxisAlignment: pw.MainAxisAlignment.center,
             children: [
-              // Your app logo widget would go here
+              _buildLogo(logoImage),
+            ],
+          ),
+          pw.SizedBox(height: 10),
 
-              pw.Column(
-                crossAxisAlignment: pw.CrossAxisAlignment.center,
-                children: [
-                  pw.Text('HOSTEL INSPECTION REPORT',
-                      style: pw.TextStyle(
-                          fontWeight: pw.FontWeight.bold,
-                          fontSize: 24,
-                          color: PdfColors.teal)),
-                  pw.SizedBox(height: 5),
-                  pw.Text(hostelName,
-                      style: pw.TextStyle(fontSize: 18, color: PdfColors.teal)),
-                ],
+          // This column will now handle the text, and the wrapping will work correctly
+          pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.center,
+            children: [
+              pw.Text(
+                'HOSTEL INSPECTION REPORT',
+                style: pw.TextStyle(
+                  fontWeight: pw.FontWeight.bold,
+                  fontSize: 24,
+                  color: PdfColors.teal,
+                ),
+                textAlign: pw.TextAlign.center, // Ensure text is centered within its space
+              ),
+              pw.SizedBox(height: 5),
+              pw.Text(
+                hostelName,
+                style: pw.TextStyle(fontSize: 18, color: PdfColors.teal),
+                textAlign: pw.TextAlign.center, // Ensure long names wrap and stay centered
               ),
             ],
           ),
+
           pw.SizedBox(height: 20),
           pw.Container(
             padding: const pw.EdgeInsets.symmetric(vertical: 10),
@@ -604,14 +553,11 @@ class _OfficerDetailScreenState extends State<OfficerDetailScreen> {
     );
   }
 
-// A new helper function for the logo
   Future<pw.ImageProvider> _loadLogoImage() async {
-
     final ByteData image = await rootBundle.load('assets/images/cg.png');
     return pw.MemoryImage(image.buffer.asUint8List());
   }
 
-// Revised _buildLogo function
   pw.Widget _buildLogo(pw.ImageProvider logoImage) {
     return pw.Container(
       height: 80,
@@ -621,7 +567,6 @@ class _OfficerDetailScreenState extends State<OfficerDetailScreen> {
       child: pw.Image(logoImage),
     );
   }
-// Simplified Info Chip
   pw.Widget _buildInfoChip(String label, String value) {
     return pw.RichText(
       text: pw.TextSpan(
@@ -652,10 +597,9 @@ class _OfficerDetailScreenState extends State<OfficerDetailScreen> {
       decoration: pw.BoxDecoration(
         color: PdfColors.teal50,
         borderRadius: pw.BorderRadius.circular(4),
-        // borderRadius: pw.BorderRadius.circular(8),
-        // border: pw.Border.all(color: PdfColors.teal, width: 1),
+        border: pw.Border.all(color: PdfColors.teal, width: 1),
       ),
-      child: pw.Row(
+      child: pw.Column(
         crossAxisAlignment: pw.CrossAxisAlignment.start,
         children: [
           pw.Text(
@@ -666,7 +610,7 @@ class _OfficerDetailScreenState extends State<OfficerDetailScreen> {
               color: PdfColors.teal,
             ),
           ),
-          pw.SizedBox(width: 8),
+          pw.SizedBox(height: 8), // Add a vertical space instead of horizontal
           pw.Text(
             remarks,
             style: pw.TextStyle(
@@ -678,9 +622,7 @@ class _OfficerDetailScreenState extends State<OfficerDetailScreen> {
         ],
       ),
     );
-
   }
-
   pw.Widget _buildImageWithLabel(pw.Image image, String label) {
     return pw.Container(
       width: 250,
@@ -726,5 +668,6 @@ class _OfficerDetailScreenState extends State<OfficerDetailScreen> {
       ),
     );
   }
+
 }
 

@@ -58,6 +58,20 @@ class ScreenController extends ChangeNotifier {
   }
 
 
+  bool get isSurveyComplete {
+    // Check if every question has a non-empty answer.
+    return questionList.every((question) {
+      final answer = answers[question.questionId];
+
+      // Check for null or empty string answers.
+      if (answer == null || (answer is String && answer.trim().isEmpty)) {
+
+        return false;
+      }
+      return true;
+    });
+  }
+
   Future<void> markAttendance(BuildContext context, int hostelID_id ,  String hostelName) async {
     if (selectedSite == null) return;
 
@@ -85,31 +99,31 @@ class ScreenController extends ChangeNotifier {
       selectedSite!.lng,
     );
 
-    if (distance <= 100) {
-      hostelAttendance(context: context, hostelID: hostelID_id.toString(), hostelName: hostelName).whenComplete(() {
-        isLoading = false;
-        isAttendanceMarked = true;
-      },);
-      if (isAttendanceMarked) {
-        _showSnackBar(context, "Attendance marked!", Colors.green);
-      }
-    } else {
+    // if (distance <= 100) {
+    //   hostelAttendance(context: context, hostelID: hostelID_id.toString(), hostelName: hostelName).whenComplete(() {
+    //     isLoading = false;
+    //     isAttendanceMarked = true;
+    //   },);
+    //   if (isAttendanceMarked) {
+    //     _showSnackBar(context, "Attendance marked!", Colors.green);
+    //   }
+    // } else {
+    //
+    //   _showSnackBar(
+    //       context,
+    //       "You are too far from $selectedSiteName)",
+    //       Colors.red);
+    //   isLoading = false;
+    //   // _showSnackBar(
+    //   //     context,
+    //   //     "You are too far from $selectedSiteName (Distance: ${distance.toStringAsFixed(2)} m)",
+    //   //     Colors.red);
+    // }
 
-      _showSnackBar(
-          context,
-          "You are too far from $selectedSiteName)",
-          Colors.red);
+   await  hostelAttendance(context: context, hostelID: hostelID_id.toString(), hostelName: hostelName).whenComplete(() {
       isLoading = false;
-      // _showSnackBar(
-      //     context,
-      //     "You are too far from $selectedSiteName (Distance: ${distance.toStringAsFixed(2)} m)",
-      //     Colors.red);
-    }
-
-   // await  hostelAttendance(context: context, hostelID: hostelID_id.toString(), hostelName: hostelName).whenComplete(() {
-   //    isLoading = false;
-   //    isAttendanceMarked = true;
-   //  },);
+      isAttendanceMarked = true;
+    },);
     notifyListeners();
   }
 
@@ -168,7 +182,7 @@ class ScreenController extends ChangeNotifier {
           backgroundColor: Colors.green,
           toastLength: Toast.LENGTH_LONG,
         );
-        print(" localDatabase.attendanceID ==========>${ localDatabase.attendanceID}");
+        print("localDatabase.attendanceID ==========>${ localDatabase.attendanceID}");
       } else {
         Fluttertoast.showToast(
           msg: response['message'],
@@ -176,6 +190,7 @@ class ScreenController extends ChangeNotifier {
           toastLength: Toast.LENGTH_LONG,
         );
         isLoading = false;
+        print("localDatabase.attendanceID1 ==========>${ localDatabase.attendanceID}");
       }
     } catch (e) {
       Fluttertoast.showToast(
@@ -324,14 +339,14 @@ class ScreenController extends ChangeNotifier {
           selectedSite!.lng,
         );
 
-        if (distance > 100) {
-          _showSnackBar(
-              context,
-              "You are too far from $selectedSiteName. Can't submit.",
-              Colors.red);
-          isLoading = false;
-          return;
-        }
+        // if (distance > 100) {
+        //   _showSnackBar(
+        //       context,
+        //       "You are too far from $selectedSiteName. Can't submit.",
+        //       Colors.red);
+        //   isLoading = false;
+        //   return;
+        // }
 
         var body = {
         "attendance_id": localDatabase.attendanceID,
@@ -510,6 +525,7 @@ async {
 
       if (response['success'] == true) {
         final List dataList = response['data'];
+        questionList.clear();
         questionList.addAll(
           dataList.map((e) => QuestionList.fromJson(e)).toList(),
         );

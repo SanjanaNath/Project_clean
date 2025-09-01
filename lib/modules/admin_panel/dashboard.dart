@@ -27,7 +27,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
   DateTime _selectedDate = DateTime.now();
   DateTime? _startDate;
   DateTime? _endDate;
-  bool _isSearching = false; // New state variable
+  bool _isSearching = false;
 
   List<dynamic> filteredList = [];
   List<dynamic> originalList = [];
@@ -73,7 +73,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
       }).toList();
     }
     setState(() {
-     filteredList = results;
+      filteredList = results;
     });
   }
 
@@ -81,7 +81,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
     setState(() {
       _isSearching = false;
       _searchController.clear();
-     filteredList =originalList;
+      filteredList =originalList;
     });
   }
 
@@ -91,147 +91,51 @@ class _AdminDashboardState extends State<AdminDashboard> {
     super.dispose();
   }
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   WidgetsBinding.instance.addPostFrameCallback((_) {
-  //     Provider.of<DashboardController>(context, listen: false).fetchHostelReportByDate(context: context, date: DateTime.now().toString(), month: "", from: "", to: "");
-  //   });
-  // }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         key: _scaffoldKey,
-     drawer: const AdminDrawer(),
-      backgroundColor: AppColors.backgroundLight,
-      body: Consumer<DashboardController>(builder: (context, controller, child) {
-        // if (controller.hostelReportByDate.isNotEmpty && originalList.isEmpty) {
-        //   originalList = controller.hostelReportByDate;
-        //   filteredList = originalList;
-        // }
-
-        return  ModalProgressHUD(
-          inAsyncCall: controller.isLoading,
-          blur: 2,
-          progressIndicator: CircularProgressIndicator(
-            color: ColorConstants().teal,
-          ),
-          child: SingleChildScrollView(
-            child: Column(
-              children: <Widget>[
-                _buildHeader(),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 16),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          _buildSectionTitle('Survey Overview'),
-                          _buildDateSelector(controller), // This is the new widget
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      _buildDailySurveyCard(controller),
-                      // const SizedBox(height: 24),
-                      // Row(
-                      //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      //   children: [
-                      //     //
-                      //     // _buildSectionTitle(
-                      //     //     _selectedDate.day == DateTime.now().day &&
-                      //     //         _selectedDate.month == DateTime.now().month &&
-                      //     //         _selectedDate.year == DateTime.now().year
-                      //     //         ? 'Today\'s Activity'
-                      //     //         : 'Survey Activity'
-                      //     // ),
-                      //
-                      //     _buildSectionTitle(
-                      //        'Survey Activity'
-                      //     ),
-                      //     IconButton(
-                      //       icon: Icon(_isSearching ? Icons.close : Icons.search, color: Colors.black54),
-                      //       onPressed: () {
-                      //         if (_isSearching) {
-                      //           _clearSearch();
-                      //         }
-                      //         setState(() {
-                      //           _isSearching = !_isSearching;
-                      //         });
-                      //       },
-                      //     ),
-                      //
-                      //     InkWell(
-                      //       onTap: () {
-                      //         // TODO: Add your report generation logic here
-                      //         ScaffoldMessenger.of(context).showSnackBar(
-                      //           const SnackBar(content: Text('Generating Report...')),
-                      //         );
-                      //       },
-                      //       borderRadius: BorderRadius.circular(20), // Must match the container's borderRadius
-                      //       child: Container(
-                      //         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      //         decoration: BoxDecoration(
-                      //           gradient: LinearGradient(
-                      //             colors: [AppColors.primaryTeal, AppColors.tealAccent],
-                      //             begin: Alignment.topLeft,
-                      //             end: Alignment.bottomRight,
-                      //           ),
-                      //           borderRadius: BorderRadius.circular(20),
-                      //           boxShadow: [
-                      //             BoxShadow(
-                      //               color: AppColors.primaryTeal.withOpacity(0.4),
-                      //               blurRadius: 8,
-                      //               offset: const Offset(0, 4),
-                      //             ),
-                      //           ],
-                      //         ),
-                      //         child: Row(
-                      //           mainAxisSize: MainAxisSize.min,
-                      //           children: [
-                      //             const Icon(Icons.download_rounded, size: 18, color: Colors.white),
-                      //             const SizedBox(width: 8),
-                      //             Text(
-                      //               'Report',
-                      //               style: GoogleFonts.poppins(
-                      //                 fontSize: 12,
-                      //                 fontWeight: FontWeight.w500,
-                      //                 color: Colors.white,
-                      //               ),
-                      //             ),
-                      //           ],
-                      //         ),
-                      //       ),
-                      //     )
-                      //   ],
-                      // ),
-                      // const SizedBox(height: 24),
-                      // const SizedBox(height: 12),
-                      // if (_isSearching)
-                      //   Padding(
-                      //     padding: const EdgeInsets.only(bottom: 12.0),
-                      //     child: SearchTextField(
-                      //       controller: _searchController,
-                      //       onChanged: _runFilter,
-                      //       hintText: 'Search by Officer or Hostel',
-                      //     ),
-                      //   ),
-                      const SizedBox(height: 24),
-                      _buildActivityHeader(),
-                      const SizedBox(height: 12),
-                      _buildCategoryList(controller),
-                      _buildOfficerList(controller),
-                    ],
-                  ),
-                ),
-              ],
+        drawer: const AdminDrawer(),
+        backgroundColor: AppColors.backgroundLight,
+        body: Consumer<DashboardController>(builder: (context, controller, child) {
+          return  ModalProgressHUD(
+            inAsyncCall: controller.isLoading,
+            blur: 2,
+            progressIndicator: CircularProgressIndicator(
+              color: ColorConstants().teal,
             ),
-          ),
-        );
-      },)
+            child: SingleChildScrollView(
+              child: Column(
+                children: <Widget>[
+                  _buildHeader(),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 16),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            _buildSectionTitle('Survey Overview'),
+                            _buildDateSelector(controller), // This is the new widget
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        _buildDailySurveyCard(controller),
+                        const SizedBox(height: 24),
+                        _buildActivityHeader(),
+                        const SizedBox(height: 12),
+                        _buildCategoryList(controller),
+                        _buildOfficerList(controller),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },)
     );
   }
 
@@ -379,25 +283,43 @@ class _AdminDashboardState extends State<AdminDashboard> {
       onTap: () {
         _showDateSelectionSheet(context, controller);
       },
-      child: Row(
-        children: [
-          Icon(Icons.calendar_today, size: 20, color: AppColors.primaryTeal),
-          const SizedBox(width: 8),
-          Text(
-            _startDate != null && _endDate != null
-                ? '${DateFormat('dd/MM/yy').format(_startDate!)} - ${DateFormat('dd/MM/yy').format(_endDate!)}'
-                : DateFormat('dd/MM/yy').format(_selectedDate),
-            style: GoogleFonts.poppins(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: AppColors.textDark,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: AppColors.primaryTeal, width: 1),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.primaryTeal.withOpacity(0.1),
+              spreadRadius: 1,
+              blurRadius: 3,
+              offset: const Offset(0, 2),
             ),
-          ),
-        ],
+          ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min, // Use this to make the button fit the content
+          children: [
+            Icon(Icons.calendar_today, size: 20, color: AppColors.primaryTeal),
+            const SizedBox(width: 8),
+            Text(
+              _startDate != null && _endDate != null
+                  ? '${DateFormat('dd/MM/yy').format(_startDate!)} - ${DateFormat('dd/MM/yy').format(_endDate!)}'
+                  : DateFormat('dd/MM/yy').format(_selectedDate),
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: AppColors.textDark,
+              ),
+            ),
+            const SizedBox(width: 8),
+            const Icon(Icons.arrow_drop_down, color: AppColors.primaryTeal),
+          ],
+        ),
       ),
     );
   }
-
 // New method to show the date selection options
   void _showDateSelectionSheet(BuildContext context, DashboardController controller) {
     showModalBottomSheet(
@@ -595,7 +517,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   //     _selectedDate.year == DateTime.now().year
                   //     ?'Total Surveys Today'
                   //     : 'Total Surveys',
-                 'Total Surveys',
+                  'Total Surveys',
 
                   style: GoogleFonts.poppins(
                     fontSize: 14,
@@ -678,8 +600,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                     child: ListTile(
                       contentPadding: const EdgeInsets.all(10),
                       leading: CircleAvatar(
-                        backgroundColor: primaryColor.withOpacity(0.2),
-                        child: const Icon(Icons.person, color: Colors.white),
+                        backgroundColor: primaryColor.withOpacity(0.4),
+                        child: const Icon(Icons.home_work, color: Colors.white),
                       ),
                       title: Text(
                         report.officerNames,
@@ -707,14 +629,14 @@ class _AdminDashboardState extends State<AdminDashboard> {
                             ),
                           ),
                           if(formattedDate != '')
-                          Text(
-                            "Date: $formattedDate",
-                            style: GoogleFonts.poppins(
-                              fontSize: 12,
-                              fontStyle: FontStyle.italic,
-                              color: Colors.grey[600],
+                            Text(
+                              "Date: $formattedDate",
+                              style: GoogleFonts.poppins(
+                                fontSize: 12,
+                                fontStyle: FontStyle.italic,
+                                color: Colors.grey[600],
+                              ),
                             ),
-                          ),
                         ],
                       ),
                     ),
@@ -775,18 +697,27 @@ class _AdminDashboardState extends State<AdminDashboard> {
                         });
                       },
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
-                          color:categoryColor.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(20),
-                          border:isSelected? Border.all(color:categoryColor ) : null
+                            color:  isSelected ? categoryColor :AppColors.cardBackground,
+                            borderRadius: BorderRadius.circular(20),
+                            border:Border.all(color:categoryColor ),
+                          boxShadow: isSelected
+                              ? [
+                            BoxShadow(
+                              color: (category['color'] as Color).withOpacity(0.4),
+                              blurRadius: 8,
+                              offset: const Offset(1, 4),
+                            ),
+                          ]
+                              : null,
                         ),
                         child: Text(
                           category['name'] as String,
                           style: GoogleFonts.poppins(
                             fontWeight: FontWeight.w500,
                             fontSize: 12,
-                            color:  categoryColor,
+                            color: isSelected ? Colors.white : categoryColor,
                           ),
                         ),
                       ),

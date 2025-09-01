@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:project_clean/utils/color_constants.dart';
 import 'package:project_clean/widgets/backgroundCircles.dart';
@@ -80,6 +81,10 @@ class _LoginScreenState extends State<LoginScreen> {
                             return null;
                           },
                           keyboardType: TextInputType.number,
+                          inputFormatters: <TextInputFormatter>[
+                            FilteringTextInputFormatter.digitsOnly,
+                          ],
+                          maxLength: 10,
                         ),
                         const SizedBox(height: 16),
                         TextFormField(

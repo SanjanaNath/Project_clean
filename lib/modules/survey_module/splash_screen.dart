@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:animate_do/animate_do.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:upgrader/upgrader.dart';
 
 import '../../../../services/local_database.dart';
 import 'package:flutter/material.dart';
@@ -69,30 +70,36 @@ class SplashScreenState extends State<SplashScreen>
   // }
 
   @override
+
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
       backgroundColor: Colors.white,
       body: BackgroundCircles(
-        child: ZoomIn(
-          delay: const Duration(seconds: 1),
-          curve: Curves.linear,
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Image.asset(
-                 "assets/images/cg.png",
-                  height: size.height * 0.2,
-                ),
-                 Text(
-                   'Hostel Inspection',
-                 style: GoogleFonts.lato( fontSize: 17,
-                   wordSpacing: 2,
-                   fontWeight: FontWeight.w600,),
-                )
-              ],
+        child: UpgradeAlert(
+        dialogStyle: UpgradeDialogStyle.material,
+        showIgnore: false,
+        showLater: false,
+          child: ZoomIn(
+            delay: const Duration(seconds: 1),
+            curve: Curves.linear,
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Image.asset(
+                   "assets/images/cg.png",
+                    height: size.height * 0.2,
+                  ),
+                   Text(
+                     'Hostel Inspection',
+                   style: GoogleFonts.lato( fontSize: 17,
+                     wordSpacing: 2,
+                     fontWeight: FontWeight.w600,),
+                  )
+                ],
+              ),
             ),
           ),
         ),

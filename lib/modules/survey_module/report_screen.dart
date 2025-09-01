@@ -245,138 +245,6 @@ class _ReportScreenState extends State<ReportScreen> {
   }
 
 
-  // Future<void> generateReport({
-  //   required List<dynamic> answers,
-  //   required BuildContext context,
-  //   required String hostelName,
-  //   required String hostelId,
-  //   required String date,
-  //   required List<String> entranceUrls,
-  //   required List<String> kitchenUrls,
-  //   required List<String> toiletUrls,
-  //   required List<String> roomUrls,
-  //   required String remarks,
-  //   required ScreenController controller,
-  // })
-  // async {
-  //   final fontData = await rootBundle.load("assets/fonts/NotoSansDevanagari-Regular.ttf");
-  //   final ttf = pw.Font.ttf(fontData);
-  //
-  //   final pdf = pw.Document();
-  //   controller.isLoading = true;
-  //
-  //   Future<List<pw.Image>> _getImagesFromUrls(List<String> urls) async {
-  //     List<pw.Image> images = [];
-  //     for (var url in urls) {
-  //       try {
-  //         final response = await http.get(Uri.parse(url));
-  //         if (response.statusCode == 200) {
-  //           images.add(pw.Image(pw.MemoryImage(response.bodyBytes)));
-  //         }
-  //       } catch (e) {
-  //         print("Error loading image from $url: $e");
-  //       }
-  //     }
-  //     return images;
-  //   }
-  //
-  //   final logoImage = await _loadLogoImage();
-  //
-  //   final entranceImages = await _getImagesFromUrls(entranceUrls);
-  //   final kitchenImages = await _getImagesFromUrls(kitchenUrls);
-  //   final toiletImages = await _getImagesFromUrls(toiletUrls);
-  //   final roomImages = await _getImagesFromUrls(roomUrls);
-  //
-  //   pdf.addPage(
-  //       pw.MultiPage(
-  //           pageTheme: pw.PageTheme(
-  //             pageFormat: PdfPageFormat.a4,
-  //             margin: const pw.EdgeInsets.all(24),
-  //             theme: pw.ThemeData.withFont(
-  //               base: ttf,
-  //               bold: ttf,
-  //             ),
-  //           ),
-  //
-  //       build: (pw.Context context) {
-  //     List<pw.Widget> content = [];
-  //
-  //     // Header Section
-  //     content.add(_buildHeader(hostelName, date, hostelId, logoImage));
-  //     content.add(pw.SizedBox(height: 20));
-  //
-  //     // Remarks Section
-  //     if (remarks.isNotEmpty) {
-  //       content.add(_buildRemarksSection(remarks));
-  //       content.add(pw.SizedBox(height: 20));
-  //     }
-  //
-  //     // Survey Answers Section
-  //     if (answers.isNotEmpty) {
-  //       content.add(pw.SizedBox(height: 12));
-  //       content.add(_buildAnswersSection(answers));
-  //       content.add(pw.SizedBox(height: 20));
-  //     }
-  //
-  //     // Photos Section Heading
-  //     content.add(_buildSectionHeading('Inspection Photos'));
-  //     content.add(pw.SizedBox(height: 20));
-  //
-  //     // Individual Photo Sections
-  //     void addPhotoSection(String title, List<pw.Image> images) {
-  //       if (images.isEmpty) return;
-  //       content.add(
-  //         pw.Text(
-  //           title,
-  //           style: pw.TextStyle(
-  //             fontSize: 14,
-  //             fontWeight: pw.FontWeight.bold,
-  //             color: PdfColors.grey700,
-  //           ),
-  //         ),
-  //       );
-  //       content.add(pw.SizedBox(height: 8));
-  //       content.add(
-  //         pw.GridView(
-  //           crossAxisCount: 3,
-  //           childAspectRatio: 1.0,
-  //           crossAxisSpacing: 15,
-  //           mainAxisSpacing: 15,
-  //           children: List.generate(
-  //             images.length,
-  //                 (index) => _buildImageWithLabel(
-  //               images[index],
-  //               '$title Photo ${index + 1}',
-  //             ),
-  //           ),
-  //         ),
-  //       );
-  //       content.add(pw.SizedBox(height: 20));
-  //     }
-  //
-  //     addPhotoSection('Entrance', entranceImages);
-  //     addPhotoSection('Kitchen', kitchenImages);
-  //     addPhotoSection('Toilet', toiletImages);
-  //     addPhotoSection('Room', roomImages);
-  //
-  //     return content;
-  //   },
-  //   ),
-  //   );
-  //
-  //   // Save file
-  //   final dir = (await getApplicationDocumentsDirectory()).path;
-  //   final sanitizedDate = date.replaceAll('/', '-');
-  //   final sanitizedHostelName = hostelName.replaceAll(RegExp(r'[^\w\s\.-]'), '');
-  //   final fileName = '$sanitizedHostelName-$sanitizedDate.pdf';
-  //   final file = File('$dir/$fileName');
-  //
-  //   await file.writeAsBytes(await pdf.save());
-  //   controller.isLoading = false;
-  //   OpenFilex.open(file.path);
-  // }
-  //
-  //
   Future<void> generateReport({
     required List<dynamic> answers,
     required BuildContext context,
@@ -433,7 +301,7 @@ class _ReportScreenState extends State<ReportScreen> {
               child: pw.Text('Question', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, color: PdfColors.white)),
             ),
             pw.Expanded(
-              flex: 2,
+              // flex: 3,
               child: pw.Text('Answer', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, color: PdfColors.white)),
             ),
           ],
@@ -456,8 +324,9 @@ class _ReportScreenState extends State<ReportScreen> {
                   style: pw.TextStyle(color: PdfColors.grey800),
                 ),
               ),
+
               pw.Expanded(
-                flex: 2,
+                // flex: 2,
                 child: pw.Text(
                   answerData['answer'],
                   style: const pw.TextStyle(color: PdfColors.black),
@@ -467,8 +336,6 @@ class _ReportScreenState extends State<ReportScreen> {
           ),
         );
       }).toList();
-
-      // Combine the heading, header row, and answer rows into a single list
       return [
         _buildSectionHeading('Inspection Form'),
         pw.SizedBox(height: 12),
@@ -603,63 +470,6 @@ class _ReportScreenState extends State<ReportScreen> {
     );
   }
 
-  pw.Widget _buildAnswersSection(List<dynamic> answers) {
-    return pw.Column(
-      crossAxisAlignment: pw.CrossAxisAlignment.start,
-      children: [
-        // Section header
-        pw.Container(
-          width: double.infinity,
-          padding: const pw.EdgeInsets.all(8),
-          decoration: pw.BoxDecoration(
-            color: PdfColors.teal50,
-            borderRadius: pw.BorderRadius.circular(4),
-            border: pw.Border.all(color: PdfColors.teal, width: 0.5),
-          ),
-          child: pw.Center(
-            child: pw.Text(
-              'Survey Answers',
-              style: pw.TextStyle(
-                fontSize: 14,
-                fontWeight: pw.FontWeight.bold,
-                color: PdfColors.teal800,
-              ),
-            ),
-          ),
-        ),
-        pw.SizedBox(height: 12),
-
-        // Table to display questions and answers
-        pw.Table.fromTextArray(
-          headers: ['Question', 'Answer'],
-          border: pw.TableBorder.all(color: PdfColors.grey300, width: 0.5),
-          headerStyle: pw.TextStyle(
-            fontWeight: pw.FontWeight.bold,
-            color: PdfColors.white,
-          ),
-          headerDecoration: const pw.BoxDecoration(
-            color: PdfColors.teal, // Darker header color for contrast
-          ),
-          rowDecoration: const pw.BoxDecoration(
-            border: pw.Border(bottom: pw.BorderSide(color: PdfColors.grey200)),
-          ),
-          cellAlignment: pw.Alignment.centerLeft,
-          cellPadding: const pw.EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-          columnWidths: {
-            0: const pw.FlexColumnWidth(3), // Question column is wider
-            1: const pw.FlexColumnWidth(2), // Answer column
-          },
-          data: answers.map((answerData) {
-            return [
-              '${answerData['question_id']}. ${answerData['question_text']}',
-              answerData['answer'],
-            ];
-          }).toList(),
-        ),
-      ],
-    );
-  }
-
   pw.Widget _buildHeader(String hostelName, String date, String hostelId, pw.ImageProvider logoImage) {
     return pw.Container(
       padding: const pw.EdgeInsets.symmetric(horizontal: 25, vertical: 20),
@@ -667,32 +477,39 @@ class _ReportScreenState extends State<ReportScreen> {
         borderRadius: pw.BorderRadius.circular(4),
         border: pw.Border.all(color: PdfColors.teal, width: 1),),
       child: pw.Column(
-        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        crossAxisAlignment: pw.CrossAxisAlignment.center, // Center the entire column
         children: [
 
-      pw.Row(
-        mainAxisAlignment: pw.MainAxisAlignment.center,
-        children: [  _buildLogo(logoImage),]),
           pw.Row(
             mainAxisAlignment: pw.MainAxisAlignment.center,
             children: [
-              // Your app logo widget would go here
+              _buildLogo(logoImage),
+            ],
+          ),
+          pw.SizedBox(height: 10),
 
-              pw.Column(
-                crossAxisAlignment: pw.CrossAxisAlignment.center,
-                children: [
-                  pw.Text('HOSTEL INSPECTION REPORT',
-                      style: pw.TextStyle(
-                          fontWeight: pw.FontWeight.bold,
-                          fontSize: 24,
-                          color: PdfColors.teal)),
-                  pw.SizedBox(height: 5),
-                  pw.Text(hostelName,
-                      style: pw.TextStyle(fontSize: 18, color: PdfColors.teal)),
-                ],
+          // This column will now handle the text, and the wrapping will work correctly
+          pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.center,
+            children: [
+              pw.Text(
+                'HOSTEL INSPECTION REPORT',
+                style: pw.TextStyle(
+                  fontWeight: pw.FontWeight.bold,
+                  fontSize: 24,
+                  color: PdfColors.teal,
+                ),
+                textAlign: pw.TextAlign.center, // Ensure text is centered within its space
+              ),
+              pw.SizedBox(height: 5),
+              pw.Text(
+                hostelName,
+                style: pw.TextStyle(fontSize: 18, color: PdfColors.teal),
+                textAlign: pw.TextAlign.center, // Ensure long names wrap and stay centered
               ),
             ],
           ),
+
           pw.SizedBox(height: 20),
           pw.Container(
             padding: const pw.EdgeInsets.symmetric(vertical: 10),
@@ -713,7 +530,6 @@ class _ReportScreenState extends State<ReportScreen> {
   }
 
   Future<pw.ImageProvider> _loadLogoImage() async {
-
     final ByteData image = await rootBundle.load('assets/images/cg.png');
     return pw.MemoryImage(image.buffer.asUint8List());
   }
@@ -757,10 +573,9 @@ class _ReportScreenState extends State<ReportScreen> {
       decoration: pw.BoxDecoration(
         color: PdfColors.teal50,
         borderRadius: pw.BorderRadius.circular(4),
-        // borderRadius: pw.BorderRadius.circular(8),
-        // border: pw.Border.all(color: PdfColors.teal, width: 1),
+        border: pw.Border.all(color: PdfColors.teal, width: 1),
       ),
-      child: pw.Row(
+      child: pw.Column(
         crossAxisAlignment: pw.CrossAxisAlignment.start,
         children: [
           pw.Text(
@@ -771,7 +586,7 @@ class _ReportScreenState extends State<ReportScreen> {
               color: PdfColors.teal,
             ),
           ),
-          pw.SizedBox(width: 8),
+          pw.SizedBox(height: 8), // Add a vertical space instead of horizontal
           pw.Text(
             remarks,
             style: pw.TextStyle(
@@ -783,9 +598,7 @@ class _ReportScreenState extends State<ReportScreen> {
         ],
       ),
     );
-
   }
-
   pw.Widget _buildImageWithLabel(pw.Image image, String label) {
     return pw.Container(
       width: 250,

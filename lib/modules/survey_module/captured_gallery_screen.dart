@@ -186,7 +186,25 @@ class _CategoryGalleryScreenState extends State<CategoryGalleryScreen> {
             ),
           ),
         ),
-        title: Text("${widget.category} Photos", style:  GoogleFonts.lato(fontWeight: FontWeight.bold, )),
+        actions: [
+          TextButton(
+            onPressed: () {
+              // Handle the "Done" action here.
+              Navigator.of(context).pop();
+            },
+            child:  Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10.0),
+              child: Text(
+                'Done',
+                style:  GoogleFonts.lato(color: Colors.black,  fontWeight: FontWeight.bold),
+              ),
+            ),
+          ),
+        ],
+        title: Text(
+          "${widget.category} Photos",
+          style: GoogleFonts.lato(fontWeight: FontWeight.bold),
+        ),
         centerTitle: true,
       ),
       body: _images.isEmpty

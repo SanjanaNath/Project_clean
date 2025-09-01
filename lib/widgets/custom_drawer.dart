@@ -58,7 +58,7 @@ class _SchoolDrawerState extends State<SchoolDrawer> {
                 Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
 
               },
-              child: const Text("Logout", style: TextStyle(color: Colors.red)),
+              child:  Text("Logout", style: GoogleFonts.poppins(color: Colors.red)),
             ),
           ],
         );
@@ -92,7 +92,7 @@ class _SchoolDrawerState extends State<SchoolDrawer> {
                 // Logout button with a clear, warning color
                 _buildMenuItem(
                   context,
-                  icon: Icons.logout,
+                  icon: Icons.logout_rounded,
                   title: "Logout",
                   onTap: () {
                     _logoutUser(context);
@@ -139,16 +139,16 @@ class _SchoolDrawerState extends State<SchoolDrawer> {
           const SizedBox(height: 12),
           Text(
             userName,
-            style: const TextStyle(
+            style:  GoogleFonts.poppins(
               color: Colors.white,
               fontSize: 20,
               fontWeight: FontWeight.w600,
             ),
           ),
           const SizedBox(height: 4),
-          const Text(
+           Text(
             "Welcome back!",
-            style: TextStyle(
+            style: GoogleFonts.poppins(
               color: Colors.white70,
               fontSize: 14,
             ),
@@ -186,7 +186,7 @@ class _SchoolDrawerState extends State<SchoolDrawer> {
                 const SizedBox(width: 16),
                 Text(
                   title,
-                  style: TextStyle(
+                  style: GoogleFonts.poppins(
                     fontSize: 16,
                     color: color,
                     fontWeight: FontWeight.w500,
@@ -219,7 +219,7 @@ class _SchoolDrawerState extends State<SchoolDrawer> {
         children: [
 
           const SizedBox(height: 4),
-          Text("v$appVersion", style: const TextStyle(fontSize: 12)),
+          Text("v$appVersion", style:  GoogleFonts.poppins(fontSize: 12)),
         ],
       ),
     );
@@ -273,7 +273,7 @@ class _AdminDrawerState extends State<AdminDrawer> {
                 Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
 
               },
-              child: const Text("Logout", style: TextStyle(color: Colors.red)),
+              child:  Text("Logout", style: GoogleFonts.poppins(color: Colors.red)),
             ),
           ],
         );
@@ -406,7 +406,7 @@ class _AdminDrawerState extends State<AdminDrawer> {
         children: [
 
           const SizedBox(height: 4),
-          Text("v$appVersion", style: const TextStyle(fontSize: 12)),
+          Text("v$appVersion", style:  GoogleFonts.poppins(fontSize: 12)),
         ],
       ),
     );
