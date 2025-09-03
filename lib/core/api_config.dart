@@ -4,16 +4,16 @@ class ApiConfig {
 
 
   /// Host Url
-  static const ip = "10.20.198.230";
-  static const apiVersion = "api/v1/";
-  static const baseUrl = "http://$ip:5000/$apiVersion/"; //local
-  static const baseUrl1 = "http://$ip:5000"; //local
+  // static const ip = "10.50.39.70";
+  // static const apiVersion = "api/v1/";
+  // static const baseUrl = "http://$ip:5000/$apiVersion/"; //local
+  // static const baseUrl1 = "http://$ip:5000"; //local
 
 
   /// Live Server
-  // static const apiVersion = "api/v3/";
-// static const baseUrl = "https://vsk.cg.gov.in/cp/$apiVersion";//production
-// static const baseUrl1 = "https://vsk.cg.gov.in/cp";//production
+  static const apiVersion = "api/v3/";
+static const baseUrl = "https://vsk.cg.gov.in/cp/$apiVersion";//production
+static const baseUrl1 = "https://vsk.cg.gov.in/cp";//production
 
   ///Apis
   static const login = "auth/login";

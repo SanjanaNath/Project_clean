@@ -22,6 +22,12 @@ class ColorConstants{
 
 class AppColors {
   static const Color primaryTeal = Color(0xFF00796B);
+  static const Color primaryTealLight = Color(0xFFB2DFDB);
+  static const Color primaryTealExtraLight = Color(0xFFE0FFFF);
+
+  static const Color accentIndigo = Color(0xFF283593);
+
+
   static Color tealAccent = const Color(0xFF5EECC6);
   static Color blue = const   Color(0xFF00BCD4);
   static Color purple = const  Color(0xFF9C27B0);
@@ -36,6 +42,11 @@ class AppColors {
   static const Color green = Color(0xFF4CAF50);
   static const Color blueGrey = Color(0xFF4C6A8B);
   static const Color lightBlueGrey = Color(0xFF9AB2C5);
+  static const Color darkBlue = Color(0xFF124170);
+  static const Color lightBlue = Color(0xFF26667F);
+  static const Color lighterBlue1 = Color(0xFF4A8CA3); // slightly lighter
+  static const Color lighterBlue2 = Color(0xFF70AFC0); // medium light
+  static const Color lighterBlue3 = Color(0xFF9FD3DE);
   static const Color cardBackground = Color(0xFFFFFFFF);
   static const Color shadowColor = Color(0x30000000);
 

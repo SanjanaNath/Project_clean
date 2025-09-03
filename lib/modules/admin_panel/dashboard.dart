@@ -1,15 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
+import 'package:open_filex/open_filex.dart';
 import 'package:provider/provider.dart';
 import '../../controllers/admin_dashboard_controller.dart';
 import '../../utils/color_constants.dart';
 import '../../widgets/custom_drawer.dart';
 import '../../widgets/custom_search_textField.dart';
 import 'hostel_detail/hostel_detail_screen.dart';
-
+import 'dart:io';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:path_provider/path_provider.dart';
 
 
 class AdminDashboard extends StatefulWidget {
@@ -34,20 +39,20 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
 
   final List<Map<String, dynamic>> _categoryList = [
-    {'name': 'monthly surveys', 'color' : AppColors.green ,'selectedColor': const Color(0xFFE8F5E9) },
+    {'name': 'monthly surveys', 'color' : AppColors.green ,'selectedColor': const Color(0xFFD3EFD5) },
     {'name': 'least surveys', 'color' : AppColors.accentOrange ,'selectedColor': AppColors.lightAccentOrange },
     {'name': 'zero surveys',  'color' : AppColors.red , 'selectedColor': const Color(0xFFFFEBEE)},
   ];
 
   List<Color> lightTileColors = [
-    const Color(0xFFE0F7FA),
-    const Color(0xFFF3E5F5),
-  ];
-  List<Color> primaryAvatarColors = [
-    const Color(0xFF00BCD4),
-    const Color(0xFF9C27B0),
+    const Color(0xFFF5F5F5), // White Smoke - a very light, clean gray
+    const Color(0xFFE8F6F3), // Light Cyan - a pale, almost minty teal
   ];
 
+  List<Color> primaryAvatarColors = [
+    const Color(0xFF008080), // Classic Teal
+    const Color(0xFF5F9EA0),  // Cadet Blue - a cool, dusty blue-gray
+  ];
   @override
   void initState() {
     super.initState();
@@ -117,14 +122,16 @@ class _AdminDashboardState extends State<AdminDashboard> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            _buildSectionTitle('Survey Overview'),
+                            Expanded( // This will give the title room to breathe and not overflow
+                              child: _buildSectionTitle('Survey Overview'),
+                            ),
                             _buildDateSelector(controller), // This is the new widget
                           ],
                         ),
                         const SizedBox(height: 12),
                         _buildDailySurveyCard(controller),
                         const SizedBox(height: 24),
-                        _buildActivityHeader(),
+                        _buildActivityHeader(controller),
                         const SizedBox(height: 12),
                         _buildCategoryList(controller),
                         _buildOfficerList(controller),
@@ -139,7 +146,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
     );
   }
 
-  Widget _buildActivityHeader() {
+
+  Widget _buildActivityHeader(DashboardController controller) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -157,60 +165,62 @@ class _AdminDashboardState extends State<AdminDashboard> {
         // Conditionally show search icon or close icon
         _isSearching
             ? IconButton(
-          icon: const Icon(Icons.close, color: Colors.black54),
+          icon: const Icon(Icons.close, color: AppColors.textMedium),
           onPressed: _clearSearch,
         )
-            : IconButton(
-          icon: const Icon(Icons.search, color: Colors.black54),
-          onPressed: () {
-            setState(() {
-              _isSearching = true;
-            });
-          },
+            : Row(
+          children: [
+            IconButton(
+              icon: const Icon(Icons.search, color: AppColors.textMedium),
+              onPressed: () {
+                setState(() {
+                  _isSearching = true;
+                });
+              },
+            ),
+            // The new, refined Report Button
+            InkWell(
+              onTap: () {
+                controller.isLoading = true;
+                _generateReport(controller);
+              },
+              borderRadius: BorderRadius.circular(20),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [AppColors.primaryTeal, AppColors.tealAccent],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.primaryTeal.withOpacity(0.4),
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.download_rounded, size: 18, color: Colors.white),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Report',
+                      style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            )
+          ],
         ),
-
-        // Report button
-        // InkWell(
-        //   onTap: () {
-        //     ScaffoldMessenger.of(context).showSnackBar(
-        //       const SnackBar(content: Text('Generating Report...')),
-        //     );
-        //   },
-        //   borderRadius: BorderRadius.circular(20),
-        //   child: Container(
-        //     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        //     decoration: BoxDecoration(
-        //       gradient:  LinearGradient(
-        //         colors: [AppColors.primaryTeal, AppColors.tealAccent],
-        //         begin: Alignment.topLeft,
-        //         end: Alignment.bottomRight,
-        //       ),
-        //       borderRadius: BorderRadius.circular(20),
-        //       boxShadow: [
-        //         BoxShadow(
-        //           color: AppColors.primaryTeal.withOpacity(0.4),
-        //           blurRadius: 8,
-        //           offset: const Offset(0, 4),
-        //         ),
-        //       ],
-        //     ),
-        //     child: Row(
-        //       mainAxisSize: MainAxisSize.min,
-        //       children: [
-        //         const Icon(Icons.download_rounded, size: 18, color: Colors.white),
-        //         const SizedBox(width: 8),
-        //         Text(
-        //           'Report',
-        //           style: GoogleFonts.poppins(
-        //             fontSize: 12,
-        //             fontWeight: FontWeight.w500,
-        //             color: Colors.white,
-        //           ),
-        //         ),
-        //       ],
-        //     ),
-        //   ),
-        // )
       ],
     );
   }
@@ -313,7 +323,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 color: AppColors.textDark,
               ),
             ),
-            const SizedBox(width: 8),
+
             const Icon(Icons.arrow_drop_down, color: AppColors.primaryTeal),
           ],
         ),
@@ -476,7 +486,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
     return Text(
       title,
       style: GoogleFonts.poppins(
-        fontSize: 20,
+        fontSize: 18,
         fontWeight: FontWeight.w600,
         color: AppColors.textDark,
       ),
@@ -603,13 +613,13 @@ class _AdminDashboardState extends State<AdminDashboard> {
                         backgroundColor: primaryColor.withOpacity(0.4),
                         child: const Icon(Icons.home_work, color: Colors.white),
                       ),
-                      title: Text(
+                      title: _selectedCategory == null ?Text(
                         report.officerNames,
                         style: GoogleFonts.poppins(
                           fontWeight: FontWeight.w600,
                           color: AppColors.textDark,
                         ),
-                      ),
+                      ): null,
                       subtitle: Text(
                         report.hostelName,
                         style: GoogleFonts.poppins(
@@ -628,7 +638,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                               color: AppColors.textDark,
                             ),
                           ),
-                          if(formattedDate != '')
+                          if(formattedDate != '' && _selectedCategory == null)
                             Text(
                               "Date: $formattedDate",
                               style: GoogleFonts.poppins(
@@ -731,6 +741,234 @@ class _AdminDashboardState extends State<AdminDashboard> {
       ),
     );
   }
+
+  Future<void> _generateReport(DashboardController controller) async {
+    if (filteredList.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No data to generate a report.')),
+      );
+      return;
+    }
+
+    // Load fonts
+    final fontData = await rootBundle.load("assets/fonts/NotoSansDevanagari-Regular.ttf");
+    final ttf = pw.Font.ttf(fontData);
+
+    final ByteData imageData = await rootBundle.load('assets/images/cg.png');
+    final Uint8List bytes = imageData.buffer.asUint8List();
+    final pw.MemoryImage logoImage = pw.MemoryImage(bytes);
+
+    String reportTitle;
+    if (_selectedCategory != null) {
+      String categoryName = _selectedCategory!.replaceAll('surveys', 'Surveys');
+      if (_selectedCategory == 'monthly surveys') {
+        reportTitle = '$categoryName Summary ${DateFormat.yMMMM().format(_selectedDate)}';
+      } else {
+        reportTitle = '${categoryName.toUpperCase()} Analysis ${DateFormat.y().format(_selectedDate)}';
+      }
+    } else if (_startDate != null && _endDate != null) {
+      reportTitle =
+      'Survey Overview from ${DateFormat('dd-MM-yy').format(_startDate!)} to ${DateFormat('dd-MM-yy').format(_endDate!)}';
+    } else {
+      reportTitle = 'Surveys on ${DateFormat('dd-MM-yy').format(_selectedDate)}';
+    }
+
+    final pdf = pw.Document();
+
+// --- Dynamic Headers and Data based on selection ---
+    List<String> headers;
+    List<List<String>> data;
+
+    if (_selectedCategory != null) {
+      // When a category is selected, show only Hostel Name and Total Surveys
+      headers = ['Hostel Name', 'Total Surveys'];
+      data = filteredList.map((report) {
+        final totalSurveys = report.officersVisited?.toString() ?? '0';
+        return <String>[ // Explicitly define the type of the inner list
+          report.hostelName?.toString() ?? 'N/A',
+          totalSurveys,
+        ];
+      }).toList(); // No need for .cast() here
+    }
+    else {
+      // Otherwise, show all columns
+      headers = ['Hostel Name', 'Officer Name', 'Survey Date', 'Total Surveys'];
+      data = filteredList.map((report) {
+        final officerName = (report.officerNames != null && report.officerNames!.trim().isNotEmpty)
+            ? report.officerNames!
+            : 'N/A';
+        String formattedDate = 'N/A';
+        try {
+          if (report.attendanceDate != null && report.attendanceDate.trim().isNotEmpty) {
+            final attendanceDateTime = DateFormat("yyyy-MM-dd").parse(report.attendanceDate);
+            formattedDate = DateFormat('dd-MM-yyyy').format(attendanceDateTime);
+          }
+        } catch (e) {
+          formattedDate = 'N/A';
+        }
+        final totalSurveys = report.officersVisited?.toString() ?? '0';
+        return <String>[ // Explicitly define the type of the inner list
+          report.hostelName?.toString() ?? 'N/A',
+          officerName,
+          formattedDate,
+          totalSurveys,
+        ];
+      }).toList(); // No need for .cast() here
+    }
+
+    print("PDF Data $data");
+
+    pdf.addPage(
+      pw.MultiPage(
+        pageTheme: pw.PageTheme(
+          pageFormat: PdfPageFormat.a4,
+          margin: const pw.EdgeInsets.all(24),
+          theme: pw.ThemeData.withFont(
+            base: ttf,
+            bold: ttf,
+          ),
+          buildBackground: (pw.Context context) {
+            return pw.Center(
+              child: pw.Transform.rotate(
+                angle: 0,
+                child: pw.Opacity(
+                  opacity: 0.08,
+                  child: pw.Image(logoImage, width: 300, height: 300),
+                ),
+              ),
+            );
+          },
+        ),
+        header: (pw.Context context) {
+          return pw.Column(
+            children: [
+              pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                children: [
+                  pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.start,
+                    children: [
+                      pw.Text(
+                        'Hostel Inspection Report',
+                        style: pw.TextStyle(
+                          fontSize: 28,
+                          fontWeight: pw.FontWeight.bold,
+                          color: PdfColors.teal,
+                        ),
+                      ),
+                      pw.SizedBox(height: 5),
+                      pw.Text(
+                        reportTitle,
+                        style: pw.TextStyle(
+                          fontSize: 16,
+                          color: PdfColors.grey700,
+                        ),
+                      ),
+                    ],
+                  ),
+                  pw.Image(logoImage, width: 80, height: 80),
+                ],
+              ),
+              pw.SizedBox(height: 10),
+              pw.Divider(color: PdfColors.grey300, thickness: 1.5),
+              pw.SizedBox(height: 10),
+            ],
+          );
+        },
+        build: (pw.Context context) {
+          final List<pw.TableRow> tableRows = List.generate(
+            data.length,
+                (index) {
+              final backgroundColor =
+              index % 2 == 0 ? PdfColors.white : PdfColor.fromHex('F5F5F5');
+              return pw.TableRow(
+                decoration: pw.BoxDecoration(color: backgroundColor),
+                children: [
+                  pw.Padding(
+                    padding: const pw.EdgeInsets.all(8),
+                    child: pw.Text((index + 1).toString(), style: pw.TextStyle(fontSize: 9)),
+                  ),
+                  ...data[index].map((cell) =>
+                      pw.Padding(
+                        padding: const pw.EdgeInsets.all(8),
+                        child: pw.Text(cell.toString(), style: pw.TextStyle(fontSize: 9)),
+                      ),
+                  ).toList(),
+                ],
+              );
+            },
+          );
+
+          return [
+            pw.Table(
+              border: pw.TableBorder.all(color: PdfColors.grey300, width: 0.5),
+              // Dynamic column widths based on headers
+              columnWidths: {
+                0: const pw.FlexColumnWidth(1),
+                1: const pw.FlexColumnWidth(3),
+                if (_selectedCategory == null) ...{
+                  2: const pw.FlexColumnWidth(2),
+                  3: const pw.FlexColumnWidth(2),
+                },
+                _selectedCategory == null ? 4: 2: const pw.FlexColumnWidth(1),
+              },
+              children: [
+                pw.TableRow(
+                  decoration: const pw.BoxDecoration(color: PdfColors.teal),
+                  children: [
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.all(8),
+                      child: pw.Text('S.N.', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, color: PdfColors.white)),
+                    ),
+                    ...headers.map((header) =>
+                        pw.Padding(
+                          padding: const pw.EdgeInsets.all(8),
+                          child: pw.Text(header, style: pw.TextStyle(fontWeight: pw.FontWeight.bold, color: PdfColors.white)),
+                        ),
+                    ).toList(),
+                  ],
+                ),
+                ...tableRows,
+              ],
+            ),
+          ];
+        },
+        footer: (pw.Context context) {
+          return pw.Row(
+            mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+            children: [
+              pw.Text(
+                'Generated on: ${DateFormat('dd-MM-yyyy HH:mm').format(DateTime.now())}',
+                style: pw.TextStyle(fontSize: 10, color: PdfColors.grey),
+              ),
+              pw.Text(
+                "Page ${context.pageNumber} of ${context.pagesCount}",
+                style: pw.TextStyle(fontSize: 10, color: PdfColors.grey),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+
+    final String path = (await getTemporaryDirectory()).path;
+    final String fileName = 'survey_report.pdf';
+    final File file = File('$path/$fileName');
+    await file.writeAsBytes(await pdf.save());
+
+    final result = await OpenFilex.open(file.path);
+    if (result.type == ResultType.done) {
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   const SnackBar(content: Text('Report generated and opened successfully!')),
+      // );
+      controller.isLoading = false;
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to open the report.')),
+      );
+    }
+  }
+
 
 
 }

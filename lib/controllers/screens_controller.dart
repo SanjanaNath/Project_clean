@@ -99,31 +99,31 @@ class ScreenController extends ChangeNotifier {
       selectedSite!.lng,
     );
 
-    // if (distance <= 100) {
-    //   hostelAttendance(context: context, hostelID: hostelID_id.toString(), hostelName: hostelName).whenComplete(() {
-    //     isLoading = false;
-    //     isAttendanceMarked = true;
-    //   },);
-    //   if (isAttendanceMarked) {
-    //     _showSnackBar(context, "Attendance marked!", Colors.green);
-    //   }
-    // } else {
-    //
-    //   _showSnackBar(
-    //       context,
-    //       "You are too far from $selectedSiteName)",
-    //       Colors.red);
-    //   isLoading = false;
-    //   // _showSnackBar(
-    //   //     context,
-    //   //     "You are too far from $selectedSiteName (Distance: ${distance.toStringAsFixed(2)} m)",
-    //   //     Colors.red);
-    // }
+    if (distance <= 100) {
+      hostelAttendance(context: context, hostelID: hostelID_id.toString(), hostelName: hostelName).whenComplete(() {
+        isLoading = false;
+        isAttendanceMarked = true;
+      },);
+      // if (isAttendanceMarked) {
+      //   _showSnackBar(context, "Attendance marked!", Colors.green);
+      // }
+    } else {
 
-   await  hostelAttendance(context: context, hostelID: hostelID_id.toString(), hostelName: hostelName).whenComplete(() {
+      _showSnackBar(
+          context,
+          "You are too far from $selectedSiteName",
+          Colors.red);
       isLoading = false;
-      isAttendanceMarked = true;
-    },);
+      // _showSnackBar(
+      //     context,
+      //     "You are too far from $selectedSiteName (Distance: ${distance.toStringAsFixed(2)} m)",
+      //     Colors.red);
+    }
+
+   // await  hostelAttendance(context: context, hostelID: hostelID_id.toString(), hostelName: hostelName).whenComplete(() {
+   //    isLoading = false;
+   //    isAttendanceMarked = true;
+   //  },);
     notifyListeners();
   }
 
@@ -339,14 +339,14 @@ class ScreenController extends ChangeNotifier {
           selectedSite!.lng,
         );
 
-        // if (distance > 100) {
-        //   _showSnackBar(
-        //       context,
-        //       "You are too far from $selectedSiteName. Can't submit.",
-        //       Colors.red);
-        //   isLoading = false;
-        //   return;
-        // }
+        if (distance > 100) {
+          _showSnackBar(
+              context,
+              "You are too far from $selectedSiteName. Can't submit.",
+              Colors.red);
+          isLoading = false;
+          return;
+        }
 
         var body = {
         "attendance_id": localDatabase.attendanceID,
