@@ -1,13 +1,14 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:dio/dio.dart';
 import '../core/api_config.dart';
+import '../main.dart';
 import 'local_database.dart';
 
 class ApiService {
   Dio _dio;
-
   ApiService()
       : _dio = Dio(
     BaseOptions(
@@ -17,6 +18,18 @@ class ApiService {
       },
     ),
   );
+
+  // bool _isLoggingOut = false;
+  // final apiService = ApiService(
+  //   onUnauthorized: () {
+  //     LocalDatabase().setLoginStatus("LoggedOut");
+  //     navigatorKey.currentState?.pushNamedAndRemoveUntil(
+  //       '/login',
+  //           (route) => false,
+  //     );
+  //   },
+  // );
+
 
   /// Default headers including Authorization token
   Map<String, String> defaultHeaders() {
@@ -127,7 +140,11 @@ class ApiService {
           throw Exception(
               '${e.response?.data['message'] ?? 'Invalid input'}');
         case 401:
-          LocalDatabase().setLoginStatus("LoggedOut");
+            LocalDatabase().setLoginStatus("LoggedOut");
+            navigatorKey.currentState?.pushNamedAndRemoveUntil(
+                    '/login',
+                        (route) => false,
+                  );
           throw Exception('Unauthorized: Please check your credentials');
         case 403:
           throw Exception('Forbidden: You do not have permission');

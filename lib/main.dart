@@ -37,6 +37,7 @@ Future<void> main() async {
   //   ),
   // );
 }
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -94,19 +95,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      // initialRoute: LocalDatabase().loginStatus == "LoggedIn"? '/dashboard':'/login',
-      // initialRoute: "/adminDashboard",
-      // routes: {
-      //   '/login': (context) => const LoginScreen(),
-      //   '/register': (context) => const RegisterScreen(),
-      //   '/home': (context) =>  HomeScreen(),
-      //   '/report': (context) =>  ReportScreen(),
-      //   '/splash': (context) =>  SplashScreen(),
-      //   ///DashBoard
-      //   '/adminDashboard': (context) =>  AdminDashboard(),
-      //   '/officerList': (context) =>  OfficerListScreen(),
-      //   '/officerDetail': (context) =>  OfficerDetailScreen(),
-      // },
+     navigatorKey: navigatorKey,
       initialRoute: "/splash",
       onGenerateRoute: (settings) {
         final arguments = settings.arguments;

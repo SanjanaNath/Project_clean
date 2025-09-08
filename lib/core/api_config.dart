@@ -4,7 +4,7 @@ class ApiConfig {
 
 
   /// Host Url
-  // static const ip = "10.50.39.70";
+  // static const ip = "10.10.73.235";
   // static const apiVersion = "api/v1/";
   // static const baseUrl = "http://$ip:5000/$apiVersion/"; //local
   // static const baseUrl1 = "http://$ip:5000"; //local

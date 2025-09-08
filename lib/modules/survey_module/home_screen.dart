@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:project_clean/modules/survey_module/survey_form.dart';
 import 'package:provider/provider.dart';
+import 'package:upgrader/upgrader.dart';
 import '../../../utils/color_constants.dart';
 import '../../controllers/screens_controller.dart';
 import '../../services/local_database.dart';
@@ -57,54 +58,60 @@ class _HomeScreenState extends State<HomeScreen> {
         iconTheme: const IconThemeData(color: Colors.white),
       ),
       drawer: const SchoolDrawer(),
-      body: Consumer<ScreenController>(
-        builder: (context, controller, child) {
-          return ModalProgressHUD(
-            inAsyncCall: controller.isLoading,
-            blur: 2,
-            progressIndicator: CircularProgressIndicator(
-              color: ColorConstants().teal,
-            ),
-            child: Stack(
-              children: [
-                Container(
-                  height: 350,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        Colors.teal.shade800,
-                        Colors.teal.shade400,
-                      ],
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                    ),
-                    borderRadius: const BorderRadius.only(
-                      bottomLeft: Radius.circular(50),
-                      bottomRight: Radius.circular(50),
-                    ),
-                  ),
-                ),
-                SafeArea(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 0.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-
-                        // User info section
-                        _buildUserInfoSection(context),
-                        const SizedBox(height: 20),
-
-                        // Main action card
-                        _buildMainActionCard(context, controller),
-                      ],
+      body: UpgradeAlert(
+        dialogStyle: UpgradeDialogStyle.material,
+        showIgnore: false,
+        showLater: false,
+        shouldPopScope: () => false,
+        child: Consumer<ScreenController>(
+          builder: (context, controller, child) {
+            return ModalProgressHUD(
+              inAsyncCall: controller.isLoading,
+              blur: 2,
+              progressIndicator: CircularProgressIndicator(
+                color: ColorConstants().teal,
+              ),
+              child: Stack(
+                children: [
+                  Container(
+                    height: 350,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          Colors.teal.shade800,
+                          Colors.teal.shade400,
+                        ],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                      ),
+                      borderRadius: const BorderRadius.only(
+                        bottomLeft: Radius.circular(50),
+                        bottomRight: Radius.circular(50),
+                      ),
                     ),
                   ),
-                ),
-              ],
-            ),
-          );
-        },
+                  SafeArea(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 0.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+
+                          // User info section
+                          _buildUserInfoSection(context),
+                          const SizedBox(height: 20),
+
+                          // Main action card
+                          _buildMainActionCard(context, controller),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
       ),
     );
   }

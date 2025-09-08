@@ -76,30 +76,25 @@ class SplashScreenState extends State<SplashScreen>
     return Scaffold(
       backgroundColor: Colors.white,
       body: BackgroundCircles(
-        child: UpgradeAlert(
-        dialogStyle: UpgradeDialogStyle.material,
-        showIgnore: false,
-        showLater: false,
-          child: ZoomIn(
-            delay: const Duration(seconds: 1),
-            curve: Curves.linear,
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Image.asset(
-                   "assets/images/cg.png",
-                    height: size.height * 0.2,
-                  ),
-                   Text(
-                     'Hostel Inspection',
-                   style: GoogleFonts.lato( fontSize: 17,
-                     wordSpacing: 2,
-                     fontWeight: FontWeight.w600,),
-                  )
-                ],
-              ),
+        child: ZoomIn(
+          delay: const Duration(seconds: 1),
+          curve: Curves.linear,
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Image.asset(
+                 "assets/images/cg.png",
+                  height: size.height * 0.2,
+                ),
+                 Text(
+                   'Hostel Inspection',
+                 style: GoogleFonts.lato( fontSize: 17,
+                   wordSpacing: 2,
+                   fontWeight: FontWeight.w600,),
+                )
+              ],
             ),
           ),
         ),

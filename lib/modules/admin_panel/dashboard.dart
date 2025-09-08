@@ -6,7 +6,10 @@ import 'package:intl/intl.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:provider/provider.dart';
+import 'package:upgrader/upgrader.dart';
 import '../../controllers/admin_dashboard_controller.dart';
+import '../../services/api_service.dart';
+import '../../services/local_database.dart';
 import '../../utils/color_constants.dart';
 import '../../widgets/custom_drawer.dart';
 import '../../widgets/custom_search_textField.dart';
@@ -53,10 +56,12 @@ class _AdminDashboardState extends State<AdminDashboard> {
     const Color(0xFF008080), // Classic Teal
     const Color(0xFF5F9EA0),  // Cadet Blue - a cool, dusty blue-gray
   ];
+  ApiService? apiService;
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+
       Provider.of<DashboardController>(context, listen: false).fetchHostelReportByDate(context: context, date: DateFormat('yyyy-MM-dd').format(_selectedDate), month: "", from: "", to: "").then((_) {
         final controller = Provider.of<DashboardController>(context, listen: false);
         originalList = controller.hostelReportByDate;
@@ -64,6 +69,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
       });
     });
   }
+
 
   void _runFilter(String enteredKeyword) {
     List<dynamic> results;
@@ -102,47 +108,53 @@ class _AdminDashboardState extends State<AdminDashboard> {
         key: _scaffoldKey,
         drawer: const AdminDrawer(),
         backgroundColor: AppColors.backgroundLight,
-        body: Consumer<DashboardController>(builder: (context, controller, child) {
-          return  ModalProgressHUD(
-            inAsyncCall: controller.isLoading,
-            blur: 2,
-            progressIndicator: CircularProgressIndicator(
-              color: ColorConstants().teal,
-            ),
-            child: SingleChildScrollView(
-              child: Column(
-                children: <Widget>[
-                  _buildHeader(),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 16),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded( // This will give the title room to breathe and not overflow
-                              child: _buildSectionTitle('Survey Overview'),
-                            ),
-                            _buildDateSelector(controller), // This is the new widget
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        _buildDailySurveyCard(controller),
-                        const SizedBox(height: 24),
-                        _buildActivityHeader(controller),
-                        const SizedBox(height: 12),
-                        _buildCategoryList(controller),
-                        _buildOfficerList(controller),
-                      ],
-                    ),
-                  ),
-                ],
+        body: UpgradeAlert(
+          dialogStyle: UpgradeDialogStyle.material,
+          shouldPopScope: () => false,
+          showIgnore: false,
+          showLater: false,
+          child: Consumer<DashboardController>(builder: (context, controller, child) {
+            return  ModalProgressHUD(
+              inAsyncCall: controller.isLoading,
+              blur: 2,
+              progressIndicator: CircularProgressIndicator(
+                color: ColorConstants().teal,
               ),
-            ),
-          );
-        },)
+              child: SingleChildScrollView(
+                child: Column(
+                  children: <Widget>[
+                    _buildHeader(),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 16),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded( // This will give the title room to breathe and not overflow
+                                child: _buildSectionTitle('Survey Overview'),
+                              ),
+                              _buildDateSelector(controller), // This is the new widget
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          _buildDailySurveyCard(controller),
+                          const SizedBox(height: 24),
+                          _buildActivityHeader(controller),
+                          const SizedBox(height: 12),
+                          _buildCategoryList(controller),
+                          _buildOfficerList(controller),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },),
+        )
     );
   }
 

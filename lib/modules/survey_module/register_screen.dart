@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:project_clean/controllers/auth_controller.dart';
 import 'package:project_clean/controllers/screens_controller.dart';
 import 'package:project_clean/utils/color_constants.dart';
 import 'package:project_clean/widgets/backgroundCircles.dart';
 import 'package:provider/provider.dart';
+import 'package:upgrader/upgrader.dart';
 
 import '../../widgets/custom_loader.dart';
 
@@ -87,11 +89,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               'Fill in your details.',
                               textAlign: TextAlign.center,
                               style:
-                              Theme
-                                  .of(context)
-                                  .textTheme
-                                  .bodyLarge
-                                  ?.copyWith(
+                              GoogleFonts.poppins(
                                 color: const Color(0xFF666666),
                               ),
                             ),

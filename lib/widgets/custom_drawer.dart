@@ -50,11 +50,8 @@ class _SchoolDrawerState extends State<SchoolDrawer> {
                 screenController.remarkController.clear();
                 screenController.clearSelectedSite();
                 screenController.capturedImages.clear();
-
-                // Clear the local database as well
                 LocalDatabase().setLoginStatus("LoggedOut");
                 LocalDatabase().setRole(0);
-
                 Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
 
               },
