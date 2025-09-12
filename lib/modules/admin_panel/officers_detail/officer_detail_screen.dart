@@ -179,17 +179,17 @@ class _OfficerDetailScreenState extends State<OfficerDetailScreen> {
                                   ],
                                 ),
 
-                                  Consumer<ScreenController>(
-                                    builder: (context, screenController, child) {
+                                  Consumer<DashboardController>(
+                                    builder: (context, dashboardController, child) {
                                       return  ElevatedButton.icon(
-                                        onPressed: screenController.isGeneratingReport
+                                        onPressed: dashboardController.isGeneratingReport
                                             ? null // Disable the button while the report is generating
                                             : () async {
                                           // 1. Show the loader.
-                                          screenController.setGeneratingReport(true);
+                                          dashboardController.setGeneratingReport(true);
 
                                           try {
-                                            final response = await screenController.reportGenerate(
+                                            final response = await dashboardController.reportGenerate(
                                               context: context,
                                               attendanceID: int.parse(detail.attendanceID),
                                             );
@@ -224,12 +224,12 @@ class _OfficerDetailScreenState extends State<OfficerDetailScreen> {
                                                 toiletUrls: groupedImages['Bathroom & Toilet'] ?? [],
                                                 roomUrls: groupedImages['Room'] ?? [],
                                                 remarks: remarks,
-                                                controller: screenController,
+                                                controller: dashboardController,
                                                 answers: answersData,
                                               );
                                             }
                                           } finally {
-                                            screenController.setGeneratingReport(false);
+                                            dashboardController.setGeneratingReport(false);
                                           }
                                         },
                                         icon: const Icon(Icons.picture_as_pdf, size: 16, color: Colors.white),
@@ -280,7 +280,7 @@ class _OfficerDetailScreenState extends State<OfficerDetailScreen> {
     required List<String> toiletUrls,
     required List<String> roomUrls,
     required String remarks,
-    required ScreenController controller,
+    required DashboardController controller,
   })
   async {
     final fontData = await rootBundle.load("assets/fonts/NotoSansDevanagari-Regular.ttf");

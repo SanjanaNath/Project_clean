@@ -21,7 +21,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final LocalDatabase localDatabase = LocalDatabase();
+  // final LocalDatabase localDatabase = LocalDatabase();
    final ScreenController screencontroller = ScreenController();
   Future<void> _fetchBlock() async {
     return await context.read<ScreenController>().fetchBlock(
@@ -147,7 +147,7 @@ class _HomeScreenState extends State<HomeScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Hello, ${localDatabase.userName ?? 'User'}!',
+                  'Hello, ${LocalDatabase().userName ?? 'User'}!',
                   style: GoogleFonts.lato(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -427,68 +427,68 @@ class _HomeScreenState extends State<HomeScreen> {
         final hasImage = images.isNotEmpty;
 
         return InkWell(
-          // onTap: () {
-          //   Navigator.push(
-          //     context,
-          //     MaterialPageRoute(
-          //       builder: (_) => CategoryGalleryScreen(
-          //         category: category.name,
-          //         images: images,
-          //         onImagesUpdated: (imgs) => controller.updateImages(category.name, imgs),
-          //       ),
-          //     ),
-          //   );
-          // },
-
-
-          onTap: () async {
-            if (controller.selectedSite == null) {
-              controller.showSnackBar(context, "Please select a site first.", Colors.red);
-              return;
-            }
-
-            LocationPermission permission = await Geolocator.checkPermission();
-            if (permission == LocationPermission.denied) {
-              permission = await Geolocator.requestPermission();
-              if (permission == LocationPermission.denied) {
-                controller.showSnackBar(context, "Location permission is required to take photos.", Colors.red);
-                return;
-              }
-            }
-            if (permission == LocationPermission.deniedForever) {
-              controller.showSnackBar(context, "Enable location from settings to take photos.", Colors.red);
-              return;
-            }
-
-            Position position = await Geolocator.getCurrentPosition(
-                desiredAccuracy: LocationAccuracy.high);
-
-            double distance = Geolocator.distanceBetween(
-              position.latitude,
-              position.longitude,
-              controller.selectedSite!.lat,
-              controller.selectedSite!.lng,
-            );
-
-            if (distance <= 100) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => CategoryGalleryScreen(
-                    category: category.name,
-                    images: images,
-                    onImagesUpdated: (imgs) => controller.updateImages(category.name, imgs),
-                  ),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => CategoryGalleryScreen(
+                  category: category.name,
+                  images: images,
+                  onImagesUpdated: (imgs) => controller.updateImages(category.name, imgs),
                 ),
-              );
-            } else {
-              controller.showSnackBar(
-                  context,
-                  "You are too far from ${controller.selectedSiteName}.",
-                  Colors.red);
-              controller.isLoading = false;
-            }
+              ),
+            );
           },
+
+
+          // onTap: () async {
+          //   if (controller.selectedSite == null) {
+          //     controller.showSnackBar(context, "Please select a site first.", Colors.red);
+          //     return;
+          //   }
+          //
+          //   LocationPermission permission = await Geolocator.checkPermission();
+          //   if (permission == LocationPermission.denied) {
+          //     permission = await Geolocator.requestPermission();
+          //     if (permission == LocationPermission.denied) {
+          //       controller.showSnackBar(context, "Location permission is required to take photos.", Colors.red);
+          //       return;
+          //     }
+          //   }
+          //   if (permission == LocationPermission.deniedForever) {
+          //     controller.showSnackBar(context, "Enable location from settings to take photos.", Colors.red);
+          //     return;
+          //   }
+          //
+          //   Position position = await Geolocator.getCurrentPosition(
+          //       desiredAccuracy: LocationAccuracy.high);
+          //
+          //   double distance = Geolocator.distanceBetween(
+          //     position.latitude,
+          //     position.longitude,
+          //     controller.selectedSite!.lat,
+          //     controller.selectedSite!.lng,
+          //   );
+          //
+          //   if (distance <= 100) {
+          //     Navigator.push(
+          //       context,
+          //       MaterialPageRoute(
+          //         builder: (_) => CategoryGalleryScreen(
+          //           category: category.name,
+          //           images: images,
+          //           onImagesUpdated: (imgs) => controller.updateImages(category.name, imgs),
+          //         ),
+          //       ),
+          //     );
+          //   } else {
+          //     controller.showSnackBar(
+          //         context,
+          //         "You are too far from ${controller.selectedSiteName}.",
+          //         Colors.red);
+          //     controller.isLoading = false;
+          //   }
+          // },
           child: Card(
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),

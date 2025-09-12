@@ -14,6 +14,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:http/http.dart' as http;
 
+import '../../services/local_database.dart';
 import '../../utils/color_constants.dart';
 import '../../widgets/no_data_found.dart';
 
@@ -26,10 +27,11 @@ class ReportScreen extends StatefulWidget {
 }
 
 class _ReportScreenState extends State<ReportScreen> {
-
+  LocalDatabase localDatabase = LocalDatabase();
   @override
   void initState() {
     super.initState();
+    print("localDatabase.userID==> ${localDatabase.userID}");
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<ScreenController>(context, listen: false).surveyHistory(context: context);
     });

@@ -108,52 +108,67 @@ class _AdminDashboardState extends State<AdminDashboard> {
         key: _scaffoldKey,
         drawer: const AdminDrawer(),
         backgroundColor: AppColors.backgroundLight,
-        body: UpgradeAlert(
-          dialogStyle: UpgradeDialogStyle.material,
-          shouldPopScope: () => false,
-          showIgnore: false,
-          showLater: false,
-          child: Consumer<DashboardController>(builder: (context, controller, child) {
-            return  ModalProgressHUD(
-              inAsyncCall: controller.isLoading,
-              blur: 2,
-              progressIndicator: CircularProgressIndicator(
-                color: ColorConstants().teal,
-              ),
-              child: SingleChildScrollView(
-                child: Column(
-                  children: <Widget>[
-                    _buildHeader(),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SizedBox(height: 16),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded( // This will give the title room to breathe and not overflow
-                                child: _buildSectionTitle('Survey Overview'),
-                              ),
-                              _buildDateSelector(controller), // This is the new widget
-                            ],
-                          ),
-                          const SizedBox(height: 12),
-                          _buildDailySurveyCard(controller),
-                          const SizedBox(height: 24),
-                          _buildActivityHeader(controller),
-                          const SizedBox(height: 12),
-                          _buildCategoryList(controller),
-                          _buildOfficerList(controller),
-                        ],
-                      ),
-                    ),
-                  ],
+        body: RefreshIndicator(
+          color: ColorConstants().teal,
+          onRefresh: () async {
+            // BlocProvider.of<ClusterDataBloc>(context).add(FetchClusterDataEvent(clusterId: clusterId),);
+            // Provider.of<DashboardController>(context, listen: false).fetchHostelReportByDate(context: context, date: DateFormat('yyyy-MM-dd').format(_selectedDate), month: "", from: "", to: "").then((_) {
+            //   final controller = Provider.of<DashboardController>(context, listen: false);
+            //   originalList = controller.hostelReportByDate;
+            //   filteredList = originalList;
+            // });
+            Navigator.pushNamedAndRemoveUntil(context, '/adminDashboard', (route) => false,);
+            // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => CACListData(districtId: widget.districtId, regUnReg: widget.regUnReg, blockId: widget.blockId, role: widget.role, clusterId: widget.clusterId,)));
+            // await Future.delayed(const Duration(seconds: 1));
+          },
+          child: UpgradeAlert(
+            dialogStyle: UpgradeDialogStyle.material,
+            shouldPopScope: () => false,
+            showIgnore: false,
+            showLater: false,
+            child: Consumer<DashboardController>(builder: (context, controller, child) {
+              return  ModalProgressHUD(
+                inAsyncCall: controller.isLoading,
+                blur: 2,
+                progressIndicator: CircularProgressIndicator(
+                  color: ColorConstants().teal,
                 ),
-              ),
-            );
-          },),
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  child: Column(
+                    children: <Widget>[
+                      _buildHeader(),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(height: 16),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded( // This will give the title room to breathe and not overflow
+                                  child: _buildSectionTitle('Survey Overview'),
+                                ),
+                                _buildDateSelector(controller), // This is the new widget
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            _buildDailySurveyCard(controller),
+                            const SizedBox(height: 24),
+                            _buildActivityHeader(controller),
+                            const SizedBox(height: 12),
+                            _buildCategoryList(controller),
+                            _buildOfficerList(controller),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },),
+          ),
         )
     );
   }
@@ -193,7 +208,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
             // The new, refined Report Button
             InkWell(
               onTap: () {
-                controller.isLoading = true;
+                controller.setGeneratingReportHome(true);
                 _generateReport(controller);
               },
               borderRadius: BorderRadius.circular(20),
@@ -452,7 +467,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
     }
   }
 
-  void _selectDateRange(DashboardController controller) async {
+  void _selectDateRange(DashboardController controller)
+  async {
     setState(() {
       _selectedCategory = null;
     });
@@ -494,6 +510,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
       );
     }
   }
+
   Widget _buildSectionTitle(String title) {
     return Text(
       title,
@@ -973,14 +990,12 @@ class _AdminDashboardState extends State<AdminDashboard> {
       // ScaffoldMessenger.of(context).showSnackBar(
       //   const SnackBar(content: Text('Report generated and opened successfully!')),
       // );
-      controller.isLoading = false;
+      controller.setGeneratingReportHome(false);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Failed to open the report.')),
       );
     }
   }
-
-
 
 }

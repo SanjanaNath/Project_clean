@@ -19,16 +19,6 @@ class ApiService {
     ),
   );
 
-  // bool _isLoggingOut = false;
-  // final apiService = ApiService(
-  //   onUnauthorized: () {
-  //     LocalDatabase().setLoginStatus("LoggedOut");
-  //     navigatorKey.currentState?.pushNamedAndRemoveUntil(
-  //       '/login',
-  //           (route) => false,
-  //     );
-  //   },
-  // );
 
 
   /// Default headers including Authorization token

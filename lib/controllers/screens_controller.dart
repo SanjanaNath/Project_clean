@@ -10,7 +10,7 @@ class ScreenController extends ChangeNotifier {
   String? selectedSiteName;
   String? selectedBlockName;
   Site? selectedSite;
-  LocalDatabase localDatabase = LocalDatabase();
+  // LocalDatabase localDatabase = LocalDatabase();
   bool isAttendanceMarked = false;
   bool isLoading = false;
   final List<Site> sites = [];
@@ -99,31 +99,31 @@ class ScreenController extends ChangeNotifier {
       selectedSite!.lng,
     );
 
-    if (distance <= 100) {
-      hostelAttendance(context: context, hostelID: hostelID_id.toString(), hostelName: hostelName).whenComplete(() {
-        isLoading = false;
-        isAttendanceMarked = true;
-      },);
-      // if (isAttendanceMarked) {
-      //   _showSnackBar(context, "Attendance marked!", Colors.green);
-      // }
-    } else {
+    // if (distance <= 100) {
+    //   hostelAttendance(context: context, hostelID: hostelID_id.toString(), hostelName: hostelName).whenComplete(() {
+    //     isLoading = false;
+    //     isAttendanceMarked = true;
+    //   },);
+    //   // if (isAttendanceMarked) {
+    //   //   _showSnackBar(context, "Attendance marked!", Colors.green);
+    //   // }
+    // } else {
+    //
+    //   _showSnackBar(
+    //       context,
+    //       "You are too far from $selectedSiteName",
+    //       Colors.red);
+    //   isLoading = false;
+    //   // _showSnackBar(
+    //   //     context,
+    //   //     "You are too far from $selectedSiteName (Distance: ${distance.toStringAsFixed(2)} m)",
+    //   //     Colors.red);
+    // }
 
-      _showSnackBar(
-          context,
-          "You are too far from $selectedSiteName",
-          Colors.red);
+   await  hostelAttendance(context: context, hostelID: hostelID_id.toString(), hostelName: hostelName).whenComplete(() {
       isLoading = false;
-      // _showSnackBar(
-      //     context,
-      //     "You are too far from $selectedSiteName (Distance: ${distance.toStringAsFixed(2)} m)",
-      //     Colors.red);
-    }
-
-   // await  hostelAttendance(context: context, hostelID: hostelID_id.toString(), hostelName: hostelName).whenComplete(() {
-   //    isLoading = false;
-   //    isAttendanceMarked = true;
-   //  },);
+      isAttendanceMarked = true;
+    },);
     notifyListeners();
   }
 
@@ -164,7 +164,7 @@ class ScreenController extends ChangeNotifier {
     notifyListeners();
 
     var body = {
-      "user_id": localDatabase.userID,
+      "user_id": LocalDatabase().userID,
       "hostel_id": hostelID,
       "hostel_name": hostelName,
       "attendanceStatus":"P"
@@ -175,14 +175,14 @@ class ScreenController extends ChangeNotifier {
       final response = await ApiService().post(ApiConfig.hostelAttendance, body);
 
       if (response['success'] == true) {
-        localDatabase.setAttendanceID(response['attendance_id']);
+        LocalDatabase().setAttendanceID(response['attendance_id']);
         // isAttendanceMarked = true;
         Fluttertoast.showToast(
           msg: response['message'],
           backgroundColor: Colors.green,
           toastLength: Toast.LENGTH_LONG,
         );
-        print("localDatabase.attendanceID ==========>${ localDatabase.attendanceID}");
+        print("localDatabase.attendanceID ==========>${ LocalDatabase().attendanceID}");
       } else {
         Fluttertoast.showToast(
           msg: response['message'],
@@ -190,7 +190,7 @@ class ScreenController extends ChangeNotifier {
           toastLength: Toast.LENGTH_LONG,
         );
         isLoading = false;
-        print("localDatabase.attendanceID1 ==========>${ localDatabase.attendanceID}");
+        print("localDatabase.attendanceID1 ==========>${ LocalDatabase().attendanceID}");
       }
     } catch (e) {
       Fluttertoast.showToast(
@@ -339,17 +339,17 @@ class ScreenController extends ChangeNotifier {
           selectedSite!.lng,
         );
 
-        if (distance > 100) {
-          _showSnackBar(
-              context,
-              "You are too far from $selectedSiteName. Can't submit.",
-              Colors.red);
-          isLoading = false;
-          return;
-        }
+        // if (distance > 100) {
+        //   _showSnackBar(
+        //       context,
+        //       "You are too far from $selectedSiteName. Can't submit.",
+        //       Colors.red);
+        //   isLoading = false;
+        //   return;
+        // }
 
         var body = {
-        "attendance_id": localDatabase.attendanceID,
+        "attendance_id": LocalDatabase().attendanceID,
         "remarks": remark,
         "image_type[0]": "Entrance",
         "image_type[1]": "Kitchen",
@@ -401,6 +401,7 @@ class ScreenController extends ChangeNotifier {
             backgroundColor: Colors.green,
             toastLength: Toast.LENGTH_LONG,
           );
+          surveyHistoryList.clear();
            remarkController.clear();
           clearSelectedSite();
           capturedImages.clear();
@@ -435,13 +436,13 @@ class ScreenController extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final response = await ApiService().get("${ApiConfig.getUserAttendance}${localDatabase.userID}");
+      final response = await ApiService().get("${ApiConfig.getUserAttendance}${LocalDatabase().userID}");
 
       if (response['success'] == true) {
         final List dataList = response['data'];
 
 
-        surveyHistoryList.clear();
+
         surveyHistoryList.addAll(
           dataList.map((item) => SurveyHistoryList(
             attendanceDate: item['attendance_date'] ?? '',
@@ -564,7 +565,7 @@ async {
       });
 
       final Map<String, dynamic> body = {
-        "attendance_id": localDatabase.attendanceID.toString(),
+        "attendance_id": LocalDatabase().attendanceID.toString(),
         "answers": answerList,
       };
 

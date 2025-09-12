@@ -42,11 +42,7 @@ class SplashScreenState extends State<SplashScreen>
         }
       });
     } else {
-      // _timers.add(Timer(const Duration(seconds: 4), () {
-      //   if (mounted) {
-      //     Routes.pushReplacement(context, Routes.welcome);
-      //   }
-      // }));
+
       Future.delayed(const Duration(seconds: 2), () {
         if (mounted) {
           Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false,);
@@ -55,19 +51,9 @@ class SplashScreenState extends State<SplashScreen>
 
     }
 
-    // }
+
   }
-  // @override
-  // void dispose() {
-  //   _controller?.dispose();
-  //
-  //   // Cancel all active timers to prevent them from triggering after dispose
-  //   for (var timer in _timers) {
-  //     timer.cancel();
-  //   }
-  //
-  //   super.dispose();
-  // }
+
 
   @override
 

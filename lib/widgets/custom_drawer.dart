@@ -16,7 +16,7 @@ class SchoolDrawer extends StatefulWidget {
 
 class _SchoolDrawerState extends State<SchoolDrawer> {
   String appVersion = "";
-  LocalDatabase localDatabase = LocalDatabase();
+  // LocalDatabase localDatabase = LocalDatabase();
   // final ScreenController screencontroller = ScreenController();
 
   @override

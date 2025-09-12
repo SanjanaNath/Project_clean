@@ -11,6 +11,15 @@ class DashboardController extends ChangeNotifier {
   final List<OfficerDetailList> officerDetailList = [];
   final List<HostelDetailList> hostelDetailList = [];
   int totalReportsCount = 0;
+  bool isGeneratingReport = false;
+  void setGeneratingReport(bool value) {
+    isGeneratingReport = value;
+    notifyListeners();
+  }
+  void setGeneratingReportHome(bool value) {
+    isLoading = value;
+    notifyListeners();
+  }
 
   Future<void> fetchHostelReportByDate({
     required BuildContext context,
@@ -29,6 +38,7 @@ class DashboardController extends ChangeNotifier {
       "from": from,
       "to": to,
       if (date.isNotEmpty) "dates": [date],
+      // if (date.isNotEmpty) "dates": ['2025-09-11'],
     };
 
 
@@ -288,6 +298,40 @@ class DashboardController extends ChangeNotifier {
         backgroundColor: Colors.red,
         toastLength: Toast.LENGTH_LONG,
       );
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<Map<String, dynamic>?> reportGenerate({
+    required BuildContext context,
+    required int attendanceID,
+  })
+  async {
+    isLoading = true;
+    notifyListeners();
+
+    try {
+      final response = await ApiService().get("${ApiConfig.getUserReport}$attendanceID");
+
+      if (response['success'] == true) {
+        return response;
+      } else {
+        Fluttertoast.showToast(
+          msg: response['message'] ?? "Failed to fetch Data",
+          backgroundColor: Colors.red,
+          toastLength: Toast.LENGTH_LONG,
+        );
+        return null;
+      }
+    } catch (e) {
+      Fluttertoast.showToast(
+        msg: "Error: $e",
+        backgroundColor: Colors.red,
+        toastLength: Toast.LENGTH_LONG,
+      );
+      return null;
     } finally {
       isLoading = false;
       notifyListeners();
