@@ -22,17 +22,17 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   // final LocalDatabase localDatabase = LocalDatabase();
-   final ScreenController screencontroller = ScreenController();
+  final ScreenController screencontroller = ScreenController();
   Future<void> _fetchBlock() async {
     return await context.read<ScreenController>().fetchBlock(
-      context: context,
-    );
+          context: context,
+        );
   }
 
   Future<void> _fetchQuestions() async {
     return await context.read<ScreenController>().fetchQuestions(
-      context: context,
-    );
+          context: context,
+        );
   }
 
   @override
@@ -43,11 +43,13 @@ class _HomeScreenState extends State<HomeScreen> {
       _fetchQuestions();
     });
   }
+
   @override
   void dispose() {
     screencontroller.remarkController.dispose();
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -92,11 +94,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   SafeArea(
                     child: SingleChildScrollView(
-                      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 0.0),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24.0, vertical: 0.0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-
                           // User info section
                           _buildUserInfoSection(context),
                           const SizedBox(height: 20),
@@ -120,7 +122,6 @@ class _HomeScreenState extends State<HomeScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-
         Column(
           children: [
             Container(
@@ -138,8 +139,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: const CircleAvatar(
                   radius: 50,
                   backgroundColor: Colors.white,
-                  backgroundImage: AssetImage('assets/images/cg.png')
-              ),
+                  backgroundImage: AssetImage('assets/images/cg.png')),
             ),
             const SizedBox(height: 10),
             // User greeting
@@ -154,7 +154,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     color: Colors.white,
                   ),
                 ),
-
                 Text(
                   'Ready for your survey?',
                   style: GoogleFonts.lato(
@@ -170,7 +169,8 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildMainActionCard(BuildContext context, ScreenController controller) {
+  Widget _buildMainActionCard(
+      BuildContext context, ScreenController controller) {
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(30),
@@ -191,14 +191,16 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               dropdownDecoratorProps: DropDownDecoratorProps(
-                dropdownSearchDecoration: _getDropdownDecoration(context, "Select Block"),
+                dropdownSearchDecoration:
+                    _getDropdownDecoration(context, "Select Block"),
               ),
               onChanged: (value) {
                 controller.sites.clear();
                 controller.clearSelectedSite();
                 if (value != null) {
                   controller.selectedBlockName = value;
-                  final selectedBlock = controller.blocks.firstWhere((block) => block.blockName == value);
+                  final selectedBlock = controller.blocks
+                      .firstWhere((block) => block.blockName == value);
                   controller.fetchHostelList(
                     context: context,
                     blockCode: selectedBlock.blockCode,
@@ -216,7 +218,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               dropdownDecoratorProps: DropDownDecoratorProps(
-                dropdownSearchDecoration: _getDropdownDecoration(context, "Select Site"),
+                dropdownSearchDecoration:
+                    _getDropdownDecoration(context, "Select Site"),
               ),
               onChanged: (value) {
                 if (value != null) {
@@ -246,7 +249,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     style: TextStyle(fontSize: 16, color: Colors.white),
                   ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primaryTeal, // A new color to differentiate
+                    backgroundColor:
+                        AppColors.primaryTeal, // A new color to differentiate
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -342,33 +346,36 @@ class _HomeScreenState extends State<HomeScreen> {
                   const SizedBox(height: 8),
                   Text(
                     controller.remarkController.text,
-                    style: GoogleFonts.lato(fontSize: 14, color: AppColors.textDark),
+                    style: GoogleFonts.lato(
+                        fontSize: 14, color: AppColors.textDark),
                   ),
                   // const SizedBox(height: 24),
                   // _buildSubmitButton(context, controller),
                 ],
                 const SizedBox(height: 24),
                 _buildSubmitButton(context, controller),
-              ]
-              else ...[
+              ] else ...[
                 const SizedBox(height: 20),
               ],
-
             ],
           ],
-
         ),
       ),
     );
   }
 
-  Widget _buildAttendanceSection(BuildContext context, ScreenController controller) {
+  Widget _buildAttendanceSection(
+      BuildContext context, ScreenController controller) {
     return Column(
       children: [
         Icon(
-          controller.isAttendanceMarked ? Icons.check_circle_rounded : Icons.info_outline_rounded,
+          controller.isAttendanceMarked
+              ? Icons.check_circle_rounded
+              : Icons.info_outline_rounded,
           size: 60,
-          color: controller.isAttendanceMarked ? AppColors.primaryTeal : AppColors.accentOrange,
+          color: controller.isAttendanceMarked
+              ? AppColors.primaryTeal
+              : AppColors.accentOrange,
         ),
         const SizedBox(height: 16),
         Text(
@@ -399,7 +406,8 @@ class _HomeScreenState extends State<HomeScreen> {
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primaryTeal,
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16)),
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
               elevation: 5,
             ),
@@ -409,13 +417,15 @@ class _HomeScreenState extends State<HomeScreen> {
               controller.selectedSiteName ?? '',
             ),
             icon: const Icon(Icons.location_on_rounded),
-            label: Text('Mark Attendance', style: GoogleFonts.lato(fontSize: 16)),
+            label:
+                Text('Mark Attendance', style: GoogleFonts.lato(fontSize: 16)),
           ),
       ],
     );
   }
 
-  Widget _photoCategoriesGrid(BuildContext context, ScreenController controller) {
+  Widget _photoCategoriesGrid(
+      BuildContext context, ScreenController controller) {
     return GridView.builder(
       shrinkWrap: true,
       itemCount: controller.photoCategories.length,
@@ -434,12 +444,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 builder: (_) => CategoryGalleryScreen(
                   category: category.name,
                   images: images,
-                  onImagesUpdated: (imgs) => controller.updateImages(category.name, imgs),
+                  onImagesUpdated: (imgs) =>
+                      controller.updateImages(category.name, imgs),
                 ),
               ),
             );
           },
-
 
           // onTap: () async {
           //   if (controller.selectedSite == null) {
@@ -494,33 +504,59 @@ class _HomeScreenState extends State<HomeScreen> {
               borderRadius: BorderRadius.circular(16),
             ),
             elevation: hasImage ? 8 : 4,
-            shadowColor: hasImage ? AppColors.accentOrange.withOpacity(0.4) : AppColors.lightGrey,
+            shadowColor: hasImage
+                ? AppColors.accentOrange.withOpacity(0.4)
+                : AppColors.lightGrey,
             child: Container(
+              padding: EdgeInsets.all(5),
               decoration: BoxDecoration(
                 color: hasImage ? Colors.white : AppColors.backgroundLight,
                 borderRadius: BorderRadius.circular(16),
-                border: hasImage ? Border.all(color: AppColors.accentOrange, width: 2) : null,
+                border: hasImage
+                    ? Border.all(color: AppColors.accentOrange, width: 2)
+                    : null,
               ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  hasImage
-                      ? ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Image.file(images.last,
-                        width: 80, height: 80, fit: BoxFit.cover),
-                  )
-                      : Icon(category.icon, size: 48, color: AppColors.deepBlue),
-                  const SizedBox(height: 8),
-                  Text(category.name,
-                      style: GoogleFonts.lato(
-                          fontWeight: FontWeight.bold, color: AppColors.deepBlue)),
-                  if (hasImage)
-                    Text("${images.length} photo(s)",
+              child: LayoutBuilder(builder: (context, constraints) {
+                // Calculate a dynamic size for the image based on the available space
+                final imageSize = constraints.maxWidth * 0.7;
+                return Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    hasImage
+                        ? Flexible(
+                      flex: 2,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Image.file(images.last,
+                            width: imageSize, height: imageSize, fit: BoxFit.cover),
+                      ),
+                    )
+                        : Flexible(
+                      flex: 2,
+                      child: Icon(category.icon, size: 48, color: AppColors.deepBlue),
+                    ),
+                    const SizedBox(height: 8),
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        category.name,
                         style: GoogleFonts.lato(
-                            fontSize: 12, color: AppColors.textMedium)),
-                ],
-              ),
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.deepBlue),
+                      ),
+                    ),
+                    if (hasImage)
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          "${images.length} photo(s)",
+                          style: GoogleFonts.lato(
+                              fontSize: 12, color: AppColors.textMedium),
+                        ),
+                      ),
+                  ],
+                );
+              }),
             ),
           ),
         );
@@ -535,14 +571,16 @@ class _HomeScreenState extends State<HomeScreen> {
         controller.isSurveyComplete;
     return ElevatedButton.icon(
       style: ElevatedButton.styleFrom(
-        backgroundColor: canSubmit ? AppColors.primaryTeal : AppColors.lightGrey,
+        backgroundColor:
+            canSubmit ? AppColors.primaryTeal : AppColors.lightGrey,
         foregroundColor: canSubmit ? Colors.white : Colors.grey,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         padding: const EdgeInsets.symmetric(vertical: 16),
         elevation: 5,
         textStyle: GoogleFonts.lato(fontSize: 16, fontWeight: FontWeight.bold),
       ),
-      icon:  Icon(Icons.cloud_upload, color: canSubmit ? Colors.white : Colors.grey),
+      icon: Icon(Icons.cloud_upload,
+          color: canSubmit ? Colors.white : Colors.grey),
       label: const Text("Submit Photos & Form"),
       onPressed: () async {
         // if (controller.capturedImages.isEmpty ||
@@ -578,9 +616,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
         if (canSubmit) {
           await controller.submitSurveyAnswers(context);
-          await controller.submitPhotos(context, controller.remarkController.text.trim());
+          await controller.submitPhotos(
+              context, controller.remarkController.text.trim());
         } else {
-
           String message = "Please complete all steps before submitting.";
 
           if (!controller.isAttendanceMarked) {
@@ -589,8 +627,7 @@ class _HomeScreenState extends State<HomeScreen> {
             message = "Please capture photos for all categories.";
           } else if (!controller.isSurveyComplete) {
             message = "Please fill out the entire survey form.";
-          }
-          else if (controller.remarkController.text.isEmpty) {
+          } else if (controller.remarkController.text.isEmpty) {
             message = "Please add a remark.";
           }
           ScaffoldMessenger.of(context).showSnackBar(
@@ -625,7 +662,4 @@ class _HomeScreenState extends State<HomeScreen> {
       fillColor: Colors.white,
     );
   }
-
-
-
 }

@@ -133,6 +133,7 @@ class HostelVisitCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final formattedDate = DateFormat('dd-MM-yyyy').format(DateTime.parse(visit.attendanceDate));
+    final formattedTime = visit.attendanceTime;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -262,6 +263,12 @@ class HostelVisitCard extends StatelessWidget {
                   icon: Icons.calendar_today_outlined,
                   label: 'Date of Visit',
                   value: formattedDate,
+                ),
+                // Add the time widget here
+                _buildInfoItem(
+                  icon: Icons.access_time, // Use a clock icon for time
+                  label: 'Time of Visit',
+                  value: formattedTime,
                 ),
                 const SizedBox(height: 10),
                 // Officer Contact

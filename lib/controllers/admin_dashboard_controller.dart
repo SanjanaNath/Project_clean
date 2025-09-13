@@ -424,6 +424,7 @@ class OfficerDetailList {
   final String hostelId;
   final String hostelName;
   final String attendanceDate;
+  final String attendanceTime;
   final String attendanceID;
   final String userID;
 
@@ -433,6 +434,7 @@ class OfficerDetailList {
     required this.attendanceDate,
     required this.attendanceID,
     required this.userID,
+    required this.attendanceTime,
   });
 
   factory OfficerDetailList.fromJson(Map<String, dynamic> json) {
@@ -440,6 +442,7 @@ class OfficerDetailList {
       hostelId: json['hostel_id'] ?? '',
       hostelName: json['hostel_name'] ?? '',
       attendanceDate: json['attendance_date'] ?? '',
+      attendanceTime: json['attendance_time'] ?? '',
       userID: json['user_id'] ?? '',
       attendanceID: json['attendance_id'].toString() ?? '',
     );
@@ -450,6 +453,7 @@ class HostelDetailList {
   final String hostelId;
   final String hostelName;
   final String attendanceDate;
+  final String attendanceTime;
   final String attendanceID;
   final String officerName;
   final String officerContact;
@@ -461,6 +465,7 @@ class HostelDetailList {
     required this.attendanceID,
     required this.officerName,
     required this.officerContact,
+    required this.attendanceTime,
   });
 
   factory HostelDetailList.fromJson(Map<String, dynamic> json) {
@@ -469,6 +474,7 @@ class HostelDetailList {
       hostelName: json['hostel_name'] ?? '',
       attendanceDate: json['attendance_date'] ?? '',
       officerName: json['officer_name'] ?? '',
+      attendanceTime: json['attendance_time'] ?? '',
       attendanceID: json['attendance_id'].toString() ?? '',
       officerContact: json['officer_contact'].toString() ?? '',
     );

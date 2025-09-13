@@ -83,158 +83,179 @@ class _ReportScreenState extends State<ReportScreen> {
                   physics: const NeverScrollableScrollPhysics(),
                   itemBuilder: (context, index) {
                     final survey = controller.surveyHistoryList[index];
-                    return GestureDetector(
-                      onTap: () {
-                        // Handle tap on the card
-                      },
-                      child: Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(14),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.teal.shade100,
-                              spreadRadius: 2,
-                              blurRadius: 5,
-                              offset: const Offset(0, 3),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            // Date Section
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
-                              decoration: BoxDecoration(
+                    return Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(14),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.teal.shade100,
+                            spreadRadius: 2,
+                            blurRadius: 5,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          // Date Section
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
+                            decoration: BoxDecoration(
                                 color: Colors.teal.shade50,
                                 borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
-                                  boxShadow: [
-                                    BoxShadow(
-                                        color: Colors.teal.shade700,
-                                        spreadRadius: 1,
-                                        blurRadius: 2)
-                                  ]
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                   Text(
-                                    "Survey Date",
-                                    style: GoogleFonts.lato(
-                                        color: Colors.teal,
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w600),
-                                  ),
-                                  Text(
-                                    DateFormat('dd/MM/yyyy').format(DateTime.parse(survey.attendanceDate)),
-                                    style: GoogleFonts.lato(
-                                        color: Colors.teal,
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w800),
-                                  ),
-                                ],
-                              ),
+                                boxShadow: [
+                                  BoxShadow(
+                                      color: Colors.teal.shade700,
+                                      spreadRadius: 1,
+                                      blurRadius: 2)
+                                ]
                             ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Column(
 
-                            // Hostel Details Section
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                   Text(
-                                    'Hostel Name',
-                                    style: GoogleFonts.lato(
-                                      color: Colors.black54,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    survey.hostelName, // Use your dynamic hostel name variable here
-                                    style: GoogleFonts.lato(
-                                      color: Colors.teal.shade800,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w800,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
 
-                            // Action Button Section
-                            Padding(
-                              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.teal.shade600,
-                                  foregroundColor: Colors.white,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  children: [
+                                    Text(
+                                      "Date of Visit",
+                                      style: GoogleFonts.lato(
+                                          color: Colors.teal,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600),
+                                    ),
+                                    Text(
+                                      DateFormat('dd/MM/yyyy').format(DateTime.parse(survey.attendanceDate)),
+                                      style: GoogleFonts.lato(
+                                          color: Colors.teal,
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w800),
+                                    ),
+                                  ],
                                 ),
-                                onPressed: controller.isGeneratingReport
-                                    ? null // Disable the button while the report is generating
-                                    : () async {
-                                  // 1. Show the loader.
-                                  controller.setGeneratingReport(true);
+                                const SizedBox(height: 8), // Add a vertical space
+                                Column(
+                                  children: [
+                                    Text(
+                                      "Time of Visit",
+                                      style: GoogleFonts.lato(
+                                          color: Colors.teal,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600),
+                                    ),
+                                    Text(
+                                      survey.attendanceTime,
+                                      style: GoogleFonts.lato(
+                                          color: Colors.teal,
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w800),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
 
-                                  try {
-                                    final response = await controller.reportGenerate(
-                                      context: context,
-                                      attendanceID: survey.attendanceID,
-                                    );
+                          // Hostel Details Section
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                 Text(
+                                  'Hostel Name',
+                                  style: GoogleFonts.lato(
+                                    color: Colors.black54,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  survey.hostelName, // Use your dynamic hostel name variable here
+                                  style: GoogleFonts.lato(
+                                    color: Colors.teal.shade800,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
 
-                                    if (response != null && response['success'] == true) {
-                                      final attendanceData = response['attendance'];
-                                      final imagesData = response['images'] as List<dynamic>;
-                                      final answersData = response['answers'] as List<dynamic>;
-                                      Map<String, List<String>> groupedImages = {};
-                                      for (var image in imagesData) {
-                                        final imageType = image['image_type'];
-                                        final imageUrl = image['image_url'];
-                                        if (imageUrl != null) {
-                                          final fullUrl = '${ApiConfig.baseUrl1}$imageUrl';
-                                          if (!groupedImages.containsKey(imageType)) {
-                                            groupedImages[imageType] = [];
-                                          }
-                                          groupedImages[imageType]?.add(fullUrl);
+                              ],
+                            ),
+                          ),
+
+                          // Action Button Section
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.teal.shade600,
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                padding: const EdgeInsets.symmetric(vertical: 12),
+                              ),
+                              onPressed: controller.isGeneratingReport
+                                  ? null // Disable the button while the report is generating
+                                  : () async {
+                                // 1. Show the loader.
+                                controller.setGeneratingReport(true);
+
+                                try {
+                                  final response = await controller.reportGenerate(
+                                    context: context,
+                                    attendanceID: survey.attendanceID,
+                                  );
+
+                                  if (response != null && response['success'] == true) {
+                                    final attendanceData = response['attendance'];
+                                    final imagesData = response['images'] as List<dynamic>;
+                                    final answersData = response['answers'] as List<dynamic>;
+                                    Map<String, List<String>> groupedImages = {};
+                                    for (var image in imagesData) {
+                                      final imageType = image['image_type'];
+                                      final imageUrl = image['image_url'];
+                                      if (imageUrl != null) {
+                                        final fullUrl = '${ApiConfig.baseUrl1}$imageUrl';
+                                        if (!groupedImages.containsKey(imageType)) {
+                                          groupedImages[imageType] = [];
                                         }
+                                        groupedImages[imageType]?.add(fullUrl);
                                       }
-                                      final remarks = (imagesData.isNotEmpty && imagesData.first['remarks'] != null)
-                                          ? imagesData.first['remarks']
-                                          : '';
-
-                                      await generateReport(
-                                        context: context,
-                                        hostelName: attendanceData['hostel_name'] ?? '',
-                                        hostelId: attendanceData['hostel_id'] ?? '',
-                                        date: DateFormat('dd/MM/yyyy').format(DateTime.parse(attendanceData['attendance_date'])),
-                                        entranceUrls: groupedImages['Entrance'] ?? [],
-                                        kitchenUrls: groupedImages['Kitchen'] ?? [],
-                                        toiletUrls: groupedImages['Bathroom & Toilet'] ?? [],
-                                        roomUrls: groupedImages['Room'] ?? [],
-                                        remarks: remarks,
-                                        controller: controller,
-                                        answers: answersData,
-                                      );
                                     }
-                                  } finally {
-                                    controller.setGeneratingReport(false);
+                                    final remarks = (imagesData.isNotEmpty && imagesData.first['remarks'] != null)
+                                        ? imagesData.first['remarks']
+                                        : '';
+
+                                    await generateReport(
+                                      context: context,
+                                      hostelName: attendanceData['hostel_name'] ?? '',
+                                      hostelId: attendanceData['hostel_id'] ?? '',
+                                      date: DateFormat('dd/MM/yyyy').format(DateTime.parse(attendanceData['attendance_date'])),
+                                      entranceUrls: groupedImages['Entrance'] ?? [],
+                                      kitchenUrls: groupedImages['Kitchen'] ?? [],
+                                      toiletUrls: groupedImages['Bathroom & Toilet'] ?? [],
+                                      roomUrls: groupedImages['Room'] ?? [],
+                                      remarks: remarks,
+                                      controller: controller,
+                                      answers: answersData,
+                                    );
                                   }
-                                },
-                                child:  Text(
-                                  'Generate Report',
-                                  style: GoogleFonts.lato(fontSize: 16, fontWeight: FontWeight.bold),
-                                ),
+                                } finally {
+                                  controller.setGeneratingReport(false);
+                                }
+                              },
+                              child:  Text(
+                                'Generate Report',
+                                style: GoogleFonts.lato(fontSize: 16, fontWeight: FontWeight.bold),
                               ),
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     );
                   },
@@ -646,6 +667,4 @@ class _ReportScreenState extends State<ReportScreen> {
       ),
     );
   }
-
-
 }

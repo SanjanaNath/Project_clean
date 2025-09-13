@@ -34,7 +34,6 @@ class OfficerDetailScreen extends StatefulWidget {
 }
 
 class _OfficerDetailScreenState extends State<OfficerDetailScreen> {
-
   @override
   void initState() {
     super.initState();
@@ -82,8 +81,8 @@ class _OfficerDetailScreenState extends State<OfficerDetailScreen> {
       body: Consumer<DashboardController>(
         builder: (context, controller, child) {
           if (controller.officerDetailList.isEmpty && !controller.isLoading) {
-            return  NoDataFound(
-              buildContext: context ,
+            return NoDataFound(
+              buildContext: context,
               heightFactor: 0.35,
               color: Colors.teal,
               message: 'No Data Found',
@@ -100,7 +99,8 @@ class _OfficerDetailScreenState extends State<OfficerDetailScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 14 , horizontal: 20),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
                   child: Text(
                     'Hostels Visited', // Clear title for the list
                     style: GoogleFonts.poppins(
@@ -118,7 +118,7 @@ class _OfficerDetailScreenState extends State<OfficerDetailScreen> {
                       final formattedDate = DateFormat('dd-MM-yyyy')
                           .format(DateTime.parse(detail.attendanceDate));
 
-                      return Container(
+                       return Container(
                         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(15),
@@ -144,7 +144,8 @@ class _OfficerDetailScreenState extends State<OfficerDetailScreen> {
                               // Hostel Name with Icon
                               Row(
                                 children: [
-                                  const Icon(Icons.home_work_outlined, color: AppColors.blueGrey, size: 20),
+                                  const Icon(Icons.home_work_outlined,
+                                      color: AppColors.blueGrey, size: 20),
                                   const SizedBox(width: 10),
                                   Expanded(
                                     child: Text(
@@ -152,106 +153,104 @@ class _OfficerDetailScreenState extends State<OfficerDetailScreen> {
                                       style: GoogleFonts.poppins(
                                           fontSize: 14,
                                           fontWeight: FontWeight.w600,
-                                          color: AppColors.blueGrey
-                                      ),
+                                          color: AppColors.blueGrey),
                                     ),
                                   ),
                                 ],
                               ),
-                              const Divider(height: 20, thickness: 1, color:AppColors.lightBlueGrey),
-                              // Survey Date with Icon
+                              const Divider(height: 20, thickness: 1, color: AppColors.lightBlueGrey),
+                              // Survey Date, Time, and Generate button
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-
                                 children: [
-                                Row(
-                                  children: [
-                                    const Icon(Icons.calendar_today, color: AppColors.blueGrey, size: 20),
-                                    const SizedBox(width: 10),
-                                    Text(
-                                      'Survey Date: $formattedDate',
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w500,
-                                        color:AppColors.blueGrey,
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      _buildInfoItem(
+                                        icon: Icons.calendar_today,
+                                        label: 'Date of Visit',
+                                        value: formattedDate,
                                       ),
-                                    ),
-                                  ],
-                                ),
-
-                                  Consumer<DashboardController>(
-                                    builder: (context, dashboardController, child) {
-                                      return  ElevatedButton.icon(
-                                        onPressed: dashboardController.isGeneratingReport
-                                            ? null // Disable the button while the report is generating
-                                            : () async {
-                                          // 1. Show the loader.
-                                          dashboardController.setGeneratingReport(true);
-
-                                          try {
-                                            final response = await dashboardController.reportGenerate(
-                                              context: context,
-                                              attendanceID: int.parse(detail.attendanceID),
-                                            );
-
-                                            if (response != null && response['success'] == true) {
-                                              final attendanceData = response['attendance'];
-                                              final imagesData = response['images'] as List<dynamic>;
-                                              final answersData = response['answers'] as List<dynamic>;
-                                              Map<String, List<String>> groupedImages = {};
-                                              for (var image in imagesData) {
-                                                final imageType = image['image_type'];
-                                                final imageUrl = image['image_url'];
-                                                if (imageUrl != null) {
-                                                  final fullUrl = '${ApiConfig.baseUrl1}$imageUrl';
-                                                  if (!groupedImages.containsKey(imageType)) {
-                                                    groupedImages[imageType] = [];
-                                                  }
-                                                  groupedImages[imageType]?.add(fullUrl);
-                                                }
-                                              }
-                                              final remarks = (imagesData.isNotEmpty && imagesData.first['remarks'] != null)
-                                                  ? imagesData.first['remarks']
-                                                  : '';
-
-                                              await generateReport(
+                                      const SizedBox(height: 10),
+                                      _buildInfoItem(
+                                        icon: Icons.access_time,
+                                        label: 'Time of Visit',
+                                        value: detail.attendanceTime,
+                                      ),
+                                    ],
+                                  ),
+                                  Flexible(
+                                    child: Consumer<DashboardController>(
+                                      builder: (context, dashboardController, child) {
+                                        return ElevatedButton.icon(
+                                          onPressed: dashboardController.isGeneratingReport
+                                              ? null
+                                              : () async {
+                                            dashboardController.setGeneratingReport(true);
+                                            try {
+                                              final response = await dashboardController.reportGenerate(
                                                 context: context,
-                                                hostelName: attendanceData['hostel_name'] ?? '',
-                                                hostelId: attendanceData['hostel_id'] ?? '',
-                                                date: DateFormat('dd/MM/yyyy').format(DateTime.parse(attendanceData['attendance_date'])),
-                                                entranceUrls: groupedImages['Entrance'] ?? [],
-                                                kitchenUrls: groupedImages['Kitchen'] ?? [],
-                                                toiletUrls: groupedImages['Bathroom & Toilet'] ?? [],
-                                                roomUrls: groupedImages['Room'] ?? [],
-                                                remarks: remarks,
-                                                controller: dashboardController,
-                                                answers: answersData,
+                                                attendanceID: int.parse(detail.attendanceID),
                                               );
-                                            }
-                                          } finally {
-                                            dashboardController.setGeneratingReport(false);
-                                          }
-                                        },
-                                        icon: const Icon(Icons.picture_as_pdf, size: 16, color: Colors.white),
-                                        label: Text(
-                                          "Generate",
-                                          style: GoogleFonts.poppins(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w600,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.teal,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(12),
-                                          ),
-                                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                                          elevation: 3,
-                                        ),
-                                      );
-                                    },
+                                              if (response != null && response['success'] == true) {
+                                                final attendanceData = response['attendance'];
+                                                final imagesData = response['images'] as List<dynamic>;
+                                                final answersData = response['answers'] as List<dynamic>;
+                                                Map<String, List<String>> groupedImages = {};
+                                                for (var image in imagesData) {
+                                                  final imageType = image['image_type'];
+                                                  final imageUrl = image['image_url'];
+                                                  if (imageUrl != null) {
+                                                    final fullUrl = '${ApiConfig.baseUrl1}$imageUrl';
+                                                    if (!groupedImages.containsKey(imageType)) {
+                                                      groupedImages[imageType] = [];
+                                                    }
+                                                    groupedImages[imageType]?.add(fullUrl);
+                                                  }
+                                                }
+                                                final remarks = (imagesData.isNotEmpty && imagesData.first['remarks'] != null)
+                                                    ? imagesData.first['remarks']
+                                                    : '';
 
+                                                // You need to ensure the generateReport function is accessible here.
+                                                await generateReport( // Note: I've added a placeholder '_' to the name.
+                                                  context: context,
+                                                  hostelName: attendanceData['hostel_name'] ?? '',
+                                                  hostelId: attendanceData['hostel_id'] ?? '',
+                                                  date: DateFormat('dd/MM/yyyy').format(DateTime.parse(attendanceData['attendance_date'])),
+                                                  entranceUrls: groupedImages['Entrance'] ?? [],
+                                                  kitchenUrls: groupedImages['Kitchen'] ?? [],
+                                                  toiletUrls: groupedImages['Bathroom & Toilet'] ?? [],
+                                                  roomUrls: groupedImages['Room'] ?? [],
+                                                  remarks: remarks,
+                                                  controller: dashboardController,
+                                                  answers: answersData,
+                                                );
+                                              }
+                                            } finally {
+                                              dashboardController.setGeneratingReport(false);
+                                            }
+                                          },
+                                          icon: const Icon(Icons.picture_as_pdf, size: 16, color: Colors.white),
+                                          label: Text(
+                                            "Generate",
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w600,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: Colors.teal,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(12),
+                                            ),
+                                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                                            elevation: 3,
+                                          ),
+                                        );
+                                      },
+                                    ),
                                   ),
                                 ],
                               ),
@@ -269,6 +268,44 @@ class _OfficerDetailScreenState extends State<OfficerDetailScreen> {
       ),
     );
   }
+
+
+  Widget _buildInfoItem({
+    required IconData icon,
+    required String label,
+    required String value,
+  })
+  {
+    return Row(
+      children: [
+        Icon(icon, color: AppColors.blueGrey, size: 20),
+        const SizedBox(width: 10),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              label,
+              style: GoogleFonts.poppins(
+                fontSize: 11,
+                color: AppColors.blueGrey,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            Text(
+              value,
+              style: GoogleFonts.poppins(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: AppColors.blueGrey,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+
   Future<void> generateReport({
     required List<dynamic> answers,
     required BuildContext context,
@@ -283,7 +320,8 @@ class _OfficerDetailScreenState extends State<OfficerDetailScreen> {
     required DashboardController controller,
   })
   async {
-    final fontData = await rootBundle.load("assets/fonts/NotoSansDevanagari-Regular.ttf");
+    final fontData =
+        await rootBundle.load("assets/fonts/NotoSansDevanagari-Regular.ttf");
     final ttf = pw.Font.ttf(fontData);
 
     final pdf = pw.Document();
@@ -322,11 +360,15 @@ class _OfficerDetailScreenState extends State<OfficerDetailScreen> {
           children: [
             pw.Expanded(
               flex: 3,
-              child: pw.Text('Question', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, color: PdfColors.white)),
+              child: pw.Text('Question',
+                  style: pw.TextStyle(
+                      fontWeight: pw.FontWeight.bold, color: PdfColors.white)),
             ),
             pw.Expanded(
               // flex: 3,
-              child: pw.Text('Answer', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, color: PdfColors.white)),
+              child: pw.Text('Answer',
+                  style: pw.TextStyle(
+                      fontWeight: pw.FontWeight.bold, color: PdfColors.white)),
             ),
           ],
         ),
@@ -336,7 +378,8 @@ class _OfficerDetailScreenState extends State<OfficerDetailScreen> {
       final answerRows = answers.map((answerData) {
         return pw.Container(
           decoration: const pw.BoxDecoration(
-            border: pw.Border(bottom: pw.BorderSide(color: PdfColors.grey200, width: 0.5)),
+            border: pw.Border(
+                bottom: pw.BorderSide(color: PdfColors.grey200, width: 0.5)),
           ),
           padding: const pw.EdgeInsets.symmetric(horizontal: 10, vertical: 8),
           child: pw.Row(
@@ -348,7 +391,6 @@ class _OfficerDetailScreenState extends State<OfficerDetailScreen> {
                   style: pw.TextStyle(color: PdfColors.grey800),
                 ),
               ),
-
               pw.Expanded(
                 // flex: 2,
                 child: pw.Text(
@@ -394,7 +436,7 @@ class _OfficerDetailScreenState extends State<OfficerDetailScreen> {
           mainAxisSpacing: 15,
           children: List.generate(
             images.length,
-                (index) => _buildImageWithLabel(
+            (index) => _buildImageWithLabel(
               images[index],
               '$title Photo ${index + 1}',
             ),
@@ -403,7 +445,6 @@ class _OfficerDetailScreenState extends State<OfficerDetailScreen> {
         pw.SizedBox(height: 20),
       ];
     }
-
 
     pdf.addPage(
       pw.MultiPage(
@@ -460,11 +501,11 @@ class _OfficerDetailScreenState extends State<OfficerDetailScreen> {
       ),
     );
 
-
     // Save file
     final dir = (await getApplicationDocumentsDirectory()).path;
     final sanitizedDate = date.replaceAll('/', '-');
-    final sanitizedHostelName = hostelName.replaceAll(RegExp(r'[^\w\s\.-]'), '');
+    final sanitizedHostelName =
+        hostelName.replaceAll(RegExp(r'[^\w\s\.-]'), '');
     final fileName = '$sanitizedHostelName-$sanitizedDate.pdf';
     final file = File('$dir/$fileName');
 
@@ -494,16 +535,20 @@ class _OfficerDetailScreenState extends State<OfficerDetailScreen> {
     );
   }
 
-  pw.Widget _buildHeader(String hostelName, String date, String hostelId, pw.ImageProvider logoImage) {
+  pw.Widget _buildHeader(String hostelName, String date, String hostelId,
+      pw.ImageProvider logoImage)
+  {
     return pw.Container(
       padding: const pw.EdgeInsets.symmetric(horizontal: 25, vertical: 20),
-      decoration: pw.BoxDecoration(color: PdfColors.teal50,
+      decoration: pw.BoxDecoration(
+        color: PdfColors.teal50,
         borderRadius: pw.BorderRadius.circular(4),
-        border: pw.Border.all(color: PdfColors.teal, width: 1),),
+        border: pw.Border.all(color: PdfColors.teal, width: 1),
+      ),
       child: pw.Column(
-        crossAxisAlignment: pw.CrossAxisAlignment.center, // Center the entire column
+        crossAxisAlignment:
+            pw.CrossAxisAlignment.center, // Center the entire column
         children: [
-
           pw.Row(
             mainAxisAlignment: pw.MainAxisAlignment.center,
             children: [
@@ -523,13 +568,15 @@ class _OfficerDetailScreenState extends State<OfficerDetailScreen> {
                   fontSize: 24,
                   color: PdfColors.teal,
                 ),
-                textAlign: pw.TextAlign.center, // Ensure text is centered within its space
+                textAlign: pw.TextAlign
+                    .center, // Ensure text is centered within its space
               ),
               pw.SizedBox(height: 5),
               pw.Text(
                 hostelName,
                 style: pw.TextStyle(fontSize: 18, color: PdfColors.teal),
-                textAlign: pw.TextAlign.center, // Ensure long names wrap and stay centered
+                textAlign: pw.TextAlign
+                    .center, // Ensure long names wrap and stay centered
               ),
             ],
           ),
@@ -538,7 +585,8 @@ class _OfficerDetailScreenState extends State<OfficerDetailScreen> {
           pw.Container(
             padding: const pw.EdgeInsets.symmetric(vertical: 10),
             decoration: const pw.BoxDecoration(
-              border: pw.Border(top: pw.BorderSide(color: PdfColors.teal, width: 1.5)),
+              border: pw.Border(
+                  top: pw.BorderSide(color: PdfColors.teal, width: 1.5)),
             ),
             child: pw.Row(
               mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
@@ -567,6 +615,7 @@ class _OfficerDetailScreenState extends State<OfficerDetailScreen> {
       child: pw.Image(logoImage),
     );
   }
+
   pw.Widget _buildInfoChip(String label, String value) {
     return pw.RichText(
       text: pw.TextSpan(
@@ -590,6 +639,7 @@ class _OfficerDetailScreenState extends State<OfficerDetailScreen> {
       ),
     );
   }
+
   pw.Widget _buildRemarksSection(String remarks) {
     return pw.Container(
       width: double.infinity,
@@ -623,6 +673,7 @@ class _OfficerDetailScreenState extends State<OfficerDetailScreen> {
       ),
     );
   }
+
   pw.Widget _buildImageWithLabel(pw.Image image, String label) {
     return pw.Container(
       width: 250,
@@ -668,6 +719,5 @@ class _OfficerDetailScreenState extends State<OfficerDetailScreen> {
       ),
     );
   }
-
 }
 

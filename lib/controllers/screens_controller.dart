@@ -449,7 +449,8 @@ class ScreenController extends ChangeNotifier {
             attendanceID: item['attendance_id'] ?? 0,
             userID: item['user_id'] ?? '',
             hostelName: item['hostel_name'] ?? '',
-            hostelID:  item['hostel_id'] ?? ''
+            hostelID:  item['hostel_id'] ?? '',
+            attendanceTime: item['attendance_time']?? ''
           )),
         );
 
@@ -627,9 +628,10 @@ class SurveyHistoryList {
   final String hostelName;
   final String hostelID;
   final String attendanceDate;
+  final String attendanceTime;
 
 
-  SurveyHistoryList({required this.hostelName,required this.hostelID, required this.userID,required this.attendanceID,required this.attendanceDate,});
+  SurveyHistoryList({required this.hostelName,required this.hostelID, required this.userID,required this.attendanceID,required this.attendanceDate,required this.attendanceTime,});
 }
 
 class Site {

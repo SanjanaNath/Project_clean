@@ -667,7 +667,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                               color: AppColors.textDark,
                             ),
                           ),
-                          if(formattedDate != '' && _selectedCategory == null)
+                          if(formattedDate != '' || _selectedCategory == 'monthly surveys')
                             Text(
                               "Date: $formattedDate",
                               style: GoogleFonts.poppins(
@@ -808,8 +808,28 @@ class _AdminDashboardState extends State<AdminDashboard> {
     List<String> headers;
     List<List<String>> data;
 
-    if (_selectedCategory != null) {
+    if (_selectedCategory == 'monthly surveys') {
       // When a category is selected, show only Hostel Name and Total Surveys
+      headers = ['Hostel Name', 'Survey Date', 'Total Surveys'];
+      data = filteredList.map((report) {
+        String formattedDate = 'N/A';
+        try {
+          if (report.attendanceDate != null && report.attendanceDate.trim().isNotEmpty) {
+            final attendanceDateTime = DateFormat("yyyy-MM-dd").parse(report.attendanceDate);
+            formattedDate = DateFormat('dd-MM-yyyy').format(attendanceDateTime);
+          }
+        } catch (e) {
+          formattedDate = 'N/A';
+        }
+        final totalSurveys = report.officersVisited?.toString() ?? '0';
+        return <String>[ // Explicitly define the type of the inner list
+          report.hostelName?.toString() ?? 'N/A',
+          formattedDate,
+          totalSurveys,
+        ];
+      }).toList(); // No need for .cast() here
+    }
+    else if (_selectedCategory == 'zero surveys' ||  _selectedCategory == 'least surveys'){
       headers = ['Hostel Name', 'Total Surveys'];
       data = filteredList.map((report) {
         final totalSurveys = report.officersVisited?.toString() ?? '0';
@@ -817,7 +837,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
           report.hostelName?.toString() ?? 'N/A',
           totalSurveys,
         ];
-      }).toList(); // No need for .cast() here
+      }).toList();
+
     }
     else {
       // Otherwise, show all columns
